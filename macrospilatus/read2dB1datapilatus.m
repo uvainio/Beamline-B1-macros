@@ -18,6 +18,9 @@ function [A,header,notfound,name] = read2dB1datapilatus(filename,files,fileend)
 % 9.8.2007 Header data is read separately into structure with macro READHEADER.m -UV
 % 18.2.2009 Modified to work for pilatus.
 % 30.3.2009 UV Cleaned up the reading procedure, for pilatus 300k
+% 4.6.2009 AW Moved fclose(fid) to the line just before imageread(), thus
+% the file is not opened twice at the same time, which caused an error in
+% Matlab 7.0
 
 % NOTE! This macro neads macros:
 % READHEADER.M
@@ -34,12 +37,13 @@ for(l = 1:max(nr))
     fid = fopen(name,'r');
     nameheader = sprintf('%s%05d.header',filename,files(l));
      if(fid ~= -1)
+         fclose(fid) %AW 4.6.2009
          A(:,:,counter) = imageread(name,'tif',[n1, m1]);  % Reading the matrix.
          if(nargout>=2) % Read header only if it is requested.
            header(counter) = readheader(nameheader); % Read header data
          end;
          counter = counter + 1;
-         fclose(fid);
+         %fclose(fid); %AW 4.6.2009
      end;
 
      if(fid == -1) % File could not be opened:
