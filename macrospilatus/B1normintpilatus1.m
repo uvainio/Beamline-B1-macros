@@ -36,6 +36,7 @@ function [qout,intout,errout,header,errmult,energyreal,distance] = B1normintpila
 % Edited: 10.12.2008 UV, changed energy calibration to an external macro
 % (and simultanenously changed from spline fit to a linear fit)
 % Edited: 8.5.2009 Andras Wacha (awacha@gmail.com)
+% Edited: 5.6.2009 AW now radint is called with 1-MASK and NOT with MASK
 
 GCareathreshold=10;
 pixelsize = 0.172; % mm
@@ -184,7 +185,7 @@ disp('Re-integrating GC data to the same bins at which the reference is defined'
                                           pixelsize,...
                                           ori(1,referencenumber),...
                                           ori(2,referencenumber),...
-                                          mask,...
+                                          1-mask,...
                                           GCdata(:,1));
 disp('Re-integration done.');
 %AW removing the undefined fields (ie. with too small effective area) from the

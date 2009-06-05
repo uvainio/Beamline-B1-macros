@@ -29,6 +29,7 @@ function [qs,ints,errs,areas,params]=reintegrateB1pilatus(fsn,mask,qrange)
 % needed, not all together at the beginning.
 % Edited: 27.5.2009 AW the q-range is generated from the mask. Also the
 % meaning of qrange has changed.
+% Edited: 5.6.2009 AW now radint is called with 1-MASK and NOT with MASK
 
 hc = 2*pi*1973.269601; % from qfrompixelsizeB1
 
@@ -98,7 +99,7 @@ for i = 1:counter;
                              params(i).PixelSize,...
                              params(i).BeamPosX,...
                              params(i).BeamPosY,...
-                             mask,qrange);
+                             1-mask,qrange);
    qs(:,i)=q1(:);
    ints(:,i)=I1(:);
    errs(:,i)=err1(:);

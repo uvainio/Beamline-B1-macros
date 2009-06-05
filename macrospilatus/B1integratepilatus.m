@@ -17,7 +17,7 @@ function [qs,ints,errs,Areas,As,Aerrs,header,orig,injectionEB] = B1integratepila
 % Edited 18.5.2009 UV, field Anode is now set to sum of image after bg correction and masking
 % Edited 26.5.2009 AW The default q-range is calculated here, not in
 % radint. Also an error was corrected in the calculation of the D-matrix.
-
+% Edited 5.6.2009 AW radint is now called NOT with MASK, BUT 1-MASK!
 
 %AW parameter "orig" is not used anywhere!
 
@@ -121,7 +121,7 @@ for(l = 1:size(Asub,3))
     % cover masked area with white
     white=ones(size(mask,1),size(mask,2),3);
     h=image(white);
-    set(h,'AlphaData',mask*0.70);
+    set(h,'AlphaData',(1-mask)*0.70);
     colorbar;
     title({sprintf('FSN %d (%s) Corrected, log scale',header(l).FSN,header(l).Title),...
         'Black: non-masked nonpositives; Faded: masked pixels'});
@@ -142,6 +142,7 @@ for(l = 1:size(Asub,3))
     % Added by AW. Radial integration.
     disp('Now integrating...');
     tic;
+    %AW 5.6.2009 Changed mask -> 1-mask!
     [qs1,ints1,errs1,Areas1]=radint(As(:,:,l),...
                                  Aerrs(:,:,l),...
                                  header(l).EnergyCalibrated,...
@@ -149,7 +150,7 @@ for(l = 1:size(Asub,3))
                                  pixelsize,...
                                  orig(1,l),...
                                  orig(2,l),...
-                                 mask,qrange);
+                                 1-mask,qrange);
     tmp=toc;
     disp(sprintf('...done. Integration took %f seconds.',tmp));
     %[qs1,ints1,errs1,Areas1]=sanitizeintegrated(qs1,ints1,errs1,Areas1);
