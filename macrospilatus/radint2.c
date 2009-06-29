@@ -49,6 +49,9 @@
   Edited: 27.5.2009. AW if the first argument is "info", an informational
   message is printed about configuration. Q-range is now deduced from the mask
   matrix.
+  Edited: 29.6.2009. AW Added counter "proportion_added" which for every pixel,
+  counts the sub-pixels which were distributed to q-bins. If this reaches
+  NSUBDIVX*NSUBDIVY, the q-loop is terminated.
  */
 
 #include "mex.h"
@@ -168,7 +171,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
       tmp=mxArrayToString(prhs[0]);
       if (!strncasecmp(tmp,"info",4))
       {
-          mexPrintf("radint.c: general purpuse integration routine.\n");
+          mexPrintf("radint.c: general purpose integration routine.\n");
           mexPrintf("Built in:\n\tmode : %s\n\tbeamstop radius : %lf\n",
                     MODESTRING,(double)BSRADIUS);
           mexPrintf("\tsubdivision points in x direction : %u\n",
@@ -470,14 +473,14 @@ void doaveraging(const double *data, const double *dataerr,
   double rmin, rmax;
   double *phi0, *dphi;
   double dmax2,dmin2; /*dmax and dmin to the second, this is used for TEST2*/
-#else
+#else /*for both RAD and SECTOR*/
   double *rmin,*rmax; /*rmin and rmax: distances from the origin
 			corresponding to the current q-ring*/
   double *dmax2,*dmin2; /*dmax and dmin to the second, this is used for TEST2*/
-#if INT_MODE==SECTOR
+#  if INT_MODE==SECTOR
   double phi0, dphi; /*phi0 is the beginning angle of the sector, dphi is
 		       the length of it. Both are expressed in radians.*/
-#endif
+#  endif
 #endif
   double xc,yc,x0,y0,x1,y1; /*for each pixel, xc,yc is its center,
 			      x0,y0,x1,y1 are the coordinates for the
@@ -503,10 +506,10 @@ void doaveraging(const double *data, const double *dataerr,
   rmax=mxMalloc(sizeof(double)*Noutput);
   dmax2=mxMalloc(sizeof(double)*Noutput);
   dmin2=mxMalloc(sizeof(double)*Noutput);
-#if INT_MODE==SECTOR
+#  if INT_MODE==SECTOR
   phi0=par1;  /*these are now in radians*/
   dphi=par2;
-#endif /*INT_MODE==SECTOR*/
+#  endif /*INT_MODE==SECTOR*/
 #endif /*INT_MODE==ASIM*/
   
   for (i=0; i<Noutput; i++) /*this loop cleans all the q-bins and
@@ -547,12 +550,12 @@ void doaveraging(const double *data, const double *dataerr,
 	as problems can occur around 2*pi.*/
       phi0[i]=q1;
       dphi[i]=fmod((q2-q1)+10*M_PI,2*M_PI);
-      /*rmin, rmax, dmax2 and dmin2 are already defined*/
+      /*rmin, rmax, dmax2 and dmin2 are already defined, and they are SCALARS.*/
 #else /*RADINT and SECTORINT*/
       /*find the minimal and the maximal radius for the given q-bin.
 	For ASIMINT, it was done outside the q-loop*/
-      /*phi0 and dphi is already defined for SECTORINT. They are not
-	used for RADINT*/
+      /*phi0 and dphi is already defined for SECTORINT, as scalars. They are
+	not used for RADINT*/
       rmin[i]=tan(asin(q1*HC/energy/4/M_PI)*2)*dist;
       rmax[i]=tan(asin(q2*HC/energy/4/M_PI)*2)*dist;
       dmax2[i]=(rmax[i]+avgresol)*(rmax[i]+avgresol);
@@ -573,6 +576,12 @@ void doaveraging(const double *data, const double *dataerr,
 				      corners of the current pixel, with
 				      respect to angle 0 (axis x, which is
 				      downwards).*/
+	unsigned long proportion_added=0; /*this counts how much
+					    sub-pixels were
+					    distributed to q-bins. If
+					    this reaches
+					    NSUBDIVX*NSUBDIVY, the
+					    q-loop is terminated.*/
 #endif
 	/*TASK #1: eliminate unneeded pixels.*/
 	
@@ -648,12 +657,14 @@ void doaveraging(const double *data, const double *dataerr,
 #endif
 	/*TASK #4: if we reached here, we should try to fit the pixel
 	  into q-ranges.*/
-        for (i=0; i<Noutput; i++) /*this is the q-loop, which goes
-				    through all points of the independent
-				    value (q or angle). The independent
-				    value is called "q", even for asimuthal
-				    integration. Thus we can use the same
-				    lines of code.*/
+	proportion_added=0;
+        for (i=0;
+	     ((i<Noutput) && (proportion_added<NSUBDIVX*NSUBDIVY));
+	     i++) /*this is the q-loop, which goes through all points
+		    of the independent value (q or angle). The
+		    independent value is called "q", even for
+		    asimuthal integration. Thus we can use the same
+		    lines of code.*/
           {
 	    /*TASK #4a: in the current q-bin, we can eliminate other
 	      pixels, which were not eliminated before this.*/
@@ -668,11 +679,11 @@ void doaveraging(const double *data, const double *dataerr,
     	    */
 	    
     	    if (d1>dmax2[i] && d2>dmax2[i] && d3>dmax2[i] && d4>dmax2[i])
-              continue;
+              continue; /*next q-bin*/
 	    
     	    /*TEST 2: The same as above, except for rmin.*/
     	    if (d1<dmin2[i] && d2<dmin2[i] && d3<dmin2[i] && d4<dmin2[i])
-    	      continue;
+    	      continue; /*next q-bin*/
 #elif (INT_MODE==ASIM)
             /*for azimuthal integration only, because for sector integration,
 	      this has already been carried out outside the q-loop.*/
@@ -694,7 +705,7 @@ void doaveraging(const double *data, const double *dataerr,
                 !test3intersect(phi2,phi3,phi0[i]+dphi[i]) && 
                 !test3intersect(phi3,phi4,phi0[i]+dphi[i]) &&
                 !test3intersect(phi4,phi1,phi0[i]+dphi[i]))
-	      continue;
+	      continue; /*next q-bin*/
 #endif
 
 	    /*TASK #4b: subdividing.*/
@@ -736,7 +747,7 @@ void doaveraging(const double *data, const double *dataerr,
 		    n++;
 #endif
                 }
-
+	    proportion_added+=n;
 	    /*TASK #4c: add the intensity to the bin*/
             p=n/(double)(NSUBDIVX*NSUBDIVY); /*this is the proportion
 					       of the intensity in the
