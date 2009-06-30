@@ -213,7 +213,7 @@ end
 % we reach this point when handles.done becomes nonzero.
 delete(handles.toolbar); %remove toolbar from figure
 set(gcf,'UserData',[]); %remove our data
-
+mask=handles.mask;
 return %this is not needed, only for clarity
 
 % here come the callback routines.
