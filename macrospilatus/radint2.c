@@ -52,6 +52,9 @@
   Edited: 29.6.2009. AW Added counter "proportion_added" which for every pixel,
   counts the sub-pixels which were distributed to q-bins. If this reaches
   NSUBDIVX*NSUBDIVY, the q-loop is terminated.
+  Edited: 30.6.2009. AW Calculation of rr and phi for sub-pixels is now done
+  before the q-loop begins. This and the last editing improved the speed by
+  a bit more than 2.
  */
 
 #include "mex.h"
@@ -576,13 +579,17 @@ void doaveraging(const double *data, const double *dataerr,
 				      corners of the current pixel, with
 				      respect to angle 0 (axis x, which is
 				      downwards).*/
+#endif
 	unsigned long proportion_added=0; /*this counts how much
 					    sub-pixels were
 					    distributed to q-bins. If
 					    this reaches
 					    NSUBDIVX*NSUBDIVY, the
 					    q-loop is terminated.*/
-#endif
+	/*the next two arrays are used in the subpixel loops.*/
+	double rr[NSUBDIVX*NSUBDIVY]; /*radius to the second for each
+					sub-pixel*/
+	double phi[NSUBDIVX*NSUBDIVY]; /*polar angle for each sub-pixel*/
 	/*TASK #1: eliminate unneeded pixels.*/
 	
 	/*the current pixel is data[k*M+j] as Octave and Matlab
@@ -657,6 +664,24 @@ void doaveraging(const double *data, const double *dataerr,
 #endif
 	/*TASK #4: if we reached here, we should try to fit the pixel
 	  into q-ranges.*/
+	/*TASK #4a: calculate rr and phi values for each sub-pixel.*/
+	n=0; /*this indexes the rr and phi arrays*/
+	for (x=x0+0.5*xresol/(double)NSUBDIVX; x<x1;
+	     x+=xresol/(double)NSUBDIVX)
+	  for (y=y0+0.5*yresol/(double)NSUBDIVY; y<y1;
+	       y+=yresol/(double)NSUBDIVY)
+	    {
+	      rr[n]=x*x+y*y; /*the squared distance of the
+			       subdivision point from the
+			       beam-center*/
+	      phi[n]=atan2(y,x); /*the angle of the subdivision
+				   point. 0 is the +x axis (pointing
+				   down), positive
+				   counterclockwise. This phi is in
+				   [-pi,pi]*/
+	      n++;
+	    }
+	
 	proportion_added=0;
         for (i=0;
 	     ((i<Noutput) && (proportion_added<NSUBDIVX*NSUBDIVY));
@@ -666,7 +691,8 @@ void doaveraging(const double *data, const double *dataerr,
 		    asimuthal integration. Thus we can use the same
 		    lines of code.*/
           {
-	    /*TASK #4a: in the current q-bin, we can eliminate other
+	    unsigned long l; /*loop variable*/
+	    /*TASK #4b: in the current q-bin, we can eliminate other
 	      pixels, which were not eliminated before this.*/
 #if INT_MODE==RAD || INT_MODE==SECTOR
             /*We perform TEST1 and TEST2 ONLY FOR RADINT and SECTORINT!
@@ -708,47 +734,36 @@ void doaveraging(const double *data, const double *dataerr,
 	      continue; /*next q-bin*/
 #endif
 
-	    /*TASK #4b: subdividing.*/
+	    /*TASK #4c: subdividing.*/
+
     	    n=0; /*this will contain the number of hits, ie. the number of
 		   subpixels falling into the current q-bin*/
-    	    for (x=x0+0.5*xresol/(double)NSUBDIVX; x<x1;
-		 x+=xresol/(double)NSUBDIVX)
-    	      for (y=y0+0.5*yresol/(double)NSUBDIVY; y<y1;
-		   y+=yresol/(double)NSUBDIVY)
-            	{
-		  double rr, phi;
-		  rr=x*x+y*y; /*the squared distance of the
-                                subdivision point from the
-                                beam-center*/
-		  phi=atan2(y,x); /*the angle of the subdivision
-				    point. 0 is the +x axis (pointing
-				    down), positive
-				    counterclockwise. This phi is in
-				    [-pi,pi]*/
-		  /*now decide if hit or not. The subdivision point
-                    should be counted, if it is between the two
-		    circles and:
-		    
-		    1. for RADINT, no other properties needed
-		    
-            	    2. in SECTORINT and ASIMINT modes, the angle
-		    difference of the point (phi) and the beginning of
-		    the sector (phi0) should be less than dphi.*/
+    	    for (l=0; l<NSUBDIVX*NSUBDIVY; l++)
+	      {
+		/*now decide if hit or not. The subdivision point
+		  should be counted, if it is between the two
+		  circles and:
+		  
+		  1. for RADINT, no other properties needed
+		  
+		  2. in SECTORINT and ASIMINT modes, the angle
+		  difference of the point (phi) and the beginning of
+		  the sector (phi0) should be less than dphi.*/
 #if INT_MODE==RAD
-		  if (rr>rmin[i]*rmin[i] && rr<=rmax[i]*rmax[i])
+		if (rr[l]>rmin[i]*rmin[i] && rr[l]<=rmax[i]*rmax[i])
 		    n++;
 #elif INT_MODE==SECTOR
-		  if ((rr>rmin[i]*rmin[i] && rr<=rmax[i]*rmax[i]) && 
-		      (fmod(phi-phi0+10*M_PI,2*M_PI)<dphi))
+		  if ((rr[l]>rmin[i]*rmin[i] && rr[l]<=rmax[i]*rmax[i]) && 
+		      (fmod(phi[l]-phi0+10*M_PI,2*M_PI)<dphi))
 		    n++;
 #elif INT_MODE==ASIM
-		  if ((rr>rmin*rmin && rr<=rmax*rmax) && 
-		      (fmod(phi-phi0[i]+10*M_PI,2*M_PI)<dphi[i]))
+		  if ((rr[l]>rmin*rmin && rr[l]<=rmax*rmax) && 
+		      (fmod(phi[l]-phi0[i]+10*M_PI,2*M_PI)<dphi[i]))
 		    n++;
 #endif
-                }
+	      }
 	    proportion_added+=n;
-	    /*TASK #4c: add the intensity to the bin*/
+	    /*TASK #4d: add the intensity to the bin*/
             p=n/(double)(NSUBDIVX*NSUBDIVY); /*this is the proportion
 					       of the intensity in the
                                                current pixel, which
