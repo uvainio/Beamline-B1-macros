@@ -44,7 +44,7 @@ function [q,I,e,A]=radint(data,dataerr,energy,distance,res,bcx,bcy,mask,q);
 % Created: 6.2.2009 Andras Wacha (awacha at gmail dot com)
 % Edited: 10.2.2009 AW (Now RES can be a vector of two)
 % Edited: 5.6.2009 AW The script version is done.
-
+error('Please build radint2.c to radint with mex!')
 HC=12398.419 % eV*A NIST 2006
 warning('Executing the script-version of radint! This can be MUCH slower\nthan the mex version. Please build radint2.c by:\n"mex -v -DRADINT radint2.c -output radint"\nif you want to use the mex version');
 nsubdivx=4;
@@ -67,7 +67,7 @@ mask=kron(mask,ones(nsubdivx,nsubdivy));
 disp('done');
 % Creating D matrix which is the distance of the sub-pixels from the origin.
 disp('Creating D matrix...');
-[X,Y]=meshgrid(1:size(data,1),1:size(data,2));
+[Y,X]=meshgrid(1:size(data,2),1:size(data,1));
 D=sqrt(((res(1)/nsubdivx)*(X-nsubdivx*bcx)).^2+((res(2)/nsubdivy)*(Y-nsubdivy*bcy)).^2);
 disp('done')
 % Q-matrix is calculated from the D matrix
