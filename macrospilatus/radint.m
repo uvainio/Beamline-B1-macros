@@ -1,5 +1,5 @@
-function [q,I,e,A]=radint(data,dataerr,energy,distance,res,bcx,bcy,mask,q);
-% [q,I,e,A]=radint(data,dataerr,energy,distance,res,bcx,bcy,mask,q);
+function [q,Intensity,Error,Area]=radint(data,dataerr,energy,distance,res,bcx,bcy,mask,q);
+% [q,Intensity,Error,Area]=radint(data,dataerr,energy,distance,res,bcx,bcy,mask,q);
 %
 % Calculates the radial average of the scattering image.
 %
@@ -44,12 +44,15 @@ function [q,I,e,A]=radint(data,dataerr,energy,distance,res,bcx,bcy,mask,q);
 % Created: 6.2.2009 Andras Wacha (awacha at gmail dot com)
 % Edited: 10.2.2009 AW (Now RES can be a vector of two)
 % Edited: 5.6.2009 AW The script version is done.
-error('Please build radint2.c to radint with mex!')
-HC=12398.419 % eV*A NIST 2006
-warning('Executing the script-version of radint! This can be MUCH slower\nthan the mex version. Please build radint2.c by:\n"mex -v -DRADINT radint2.c -output radint"\nif you want to use the mex version');
-nsubdivx=4;
-nsubdivy=4;
-if size(data)~=size(dataerr) or size(data)~=size(mask)
+% Edited: 6.7.2009 AW The script version is now working. If the mex file 
+% has not been compiled to binary, a warning is issued (not an error)
+% and the script is run with nsubdivx=nsubdivy=1.
+
+HC=12398.419; % eV*A NIST 2006
+warning(sprintf('Executing the script-version of radint! This can be MUCH slower\nthan the mex version. Please consider building radint2.c by:\n"mex -v -DRADINT radint2.c -output radint"\nif you want to use the mex version'));
+nsubdivx=1;
+nsubdivy=1;
+if size(data)~=size(dataerr) || size(data)~=size(mask)
     error('Sizes of data, dataerr and mask should be equal.')
 end
 if length(res)==1
@@ -58,36 +61,27 @@ end
 if length(res)>2
     disp('res should be of length not larger than 2.')
 end
-disp('sub-dividing...')
 M=size(data,1); % number of rows
 N=size(data,2); % number of columns
 data=kron(data,ones(nsubdivx,nsubdivy));
 dataerr=kron(dataerr,ones(nsubdivx,nsubdivy));
 mask=kron(mask,ones(nsubdivx,nsubdivy));
-disp('done');
 % Creating D matrix which is the distance of the sub-pixels from the origin.
-disp('Creating D matrix...');
 [Y,X]=meshgrid(1:size(data,2),1:size(data,1));
 D=sqrt(((res(1)/nsubdivx)*(X-nsubdivx*bcx)).^2+((res(2)/nsubdivy)*(Y-nsubdivy*bcy)).^2);
-disp('done')
 % Q-matrix is calculated from the D matrix
-disp('Calculating q-matrix...')
 q1=4*pi*sin(0.5*atan(D/distance))*energy/HC;
-disp('done')
+imagesc(q1)
 % Now vectorize everything. This allows us to do the masking by eliminating
 % masked pixels.
-disp('Vectorizing...')
 datalin=data(:);
 dataerrlin=dataerr(:);
 masklin=mask(:);
 qlin=q1(:);
-disp('done')
 % eliminating masked pixels
-disp('Masking...');
 data=datalin(masklin==0);
 dataerr=dataerrlin(masklin==0);
 q1=qlin(masklin==0);
-disp('done')
 % if the q-scale was not supplied, create one.
 if nargin<9
     disp('Creating q-scale...')
@@ -102,13 +96,15 @@ Error=zeros(size(q));
 Area=zeros(size(q));
 %square the error
 dataerr=dataerr.^2;
-disp('Integrating...')
 % set the bounds of the q-bins in qmin and qmax
 qmin=[q(1),(q(1:end-1)+q(2:end))/2];
 qmax=[(q(1:end-1)+q(2:end))/2,q(end)];
 % go through every q-bin
 for l =1:length(q)
-    indices=((q1<=qmax(l))&&(q1>qmin(l))); % the indices of the sub-pixels which belong to this q-bin
+    disp(sprintf('q: %f, qmin: %f, qmax: %f',q(l),qmin(l),qmax(l)))
+    indices_1=(q1<=qmax(l));
+    indices_2=(q1>qmin(l));
+    indices=((q1<=qmax(l)) & (q1>qmin(l))); % the indices of the sub-pixels which belong to this q-bin
     Intensity(l)=sum(data(indices)); % sum the intensities
     Error(l)=sum(dataerr(indices)); % sum the errors
     Area(l)=sum(indices); % collect the area
@@ -116,4 +112,3 @@ end
 Intensity=Intensity./Area; % normalization by the area
 Error=Error./Area ;
 Error=sqrt(Error); % square root of the error
-disp('done');
