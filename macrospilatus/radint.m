@@ -50,8 +50,6 @@ function [q,Intensity,Error,Area]=radint(data,dataerr,energy,distance,res,bcx,bc
 
 HC=12398.419; % eV*A NIST 2006
 warning(sprintf('Executing the script-version of radint! This can be MUCH slower\nthan the mex version. Please consider building radint2.c by:\n"mex -v -DRADINT radint2.c -output radint"\nif you want to use the mex version'));
-nsubdivx=1;
-nsubdivy=1;
 if size(data)~=size(dataerr) || size(data)~=size(mask)
     error('Sizes of data, dataerr and mask should be equal.')
 end
@@ -63,12 +61,9 @@ if length(res)>2
 end
 M=size(data,1); % number of rows
 N=size(data,2); % number of columns
-data=kron(data,ones(nsubdivx,nsubdivy));
-dataerr=kron(dataerr,ones(nsubdivx,nsubdivy));
-mask=kron(mask,ones(nsubdivx,nsubdivy));
 % Creating D matrix which is the distance of the sub-pixels from the origin.
 [Y,X]=meshgrid(1:size(data,2),1:size(data,1));
-D=sqrt(((res(1)/nsubdivx)*(X-nsubdivx*bcx)).^2+((res(2)/nsubdivy)*(Y-nsubdivy*bcy)).^2);
+D=sqrt((res(1)*(X-bcx)).^2+(res(2)*(Y-bcy)).^2);
 % Q-matrix is calculated from the D matrix
 q1=4*pi*sin(0.5*atan(D/distance))*energy/HC;
 imagesc(q1)
@@ -87,7 +82,7 @@ if nargin<9
     disp('Creating q-scale...')
     qmin=min(q1); % the lowest non-masked q-value
     qmax=max(q1); % the highest non-masked q-value
-    q=linspace(qmin,qmax,max([M,N]));
+    q=linspace(qmin,qmax,3*sqrt(M*M+N*N));
     disp('done')
 end
 % initialize the output vectors
@@ -104,7 +99,7 @@ for l =1:length(q)
     disp(sprintf('q: %f, qmin: %f, qmax: %f',q(l),qmin(l),qmax(l)))
     indices_1=(q1<=qmax(l));
     indices_2=(q1>qmin(l));
-    indices=((q1<=qmax(l)) & (q1>qmin(l))); % the indices of the sub-pixels which belong to this q-bin
+    indices=((q1<=qmax(l)) & (q1>qmin(l))); % the indices of the pixels which belong to this q-bin
     Intensity(l)=sum(data(indices)); % sum the intensities
     Error(l)=sum(dataerr(indices)); % sum the errors
     Area(l)=sum(indices); % collect the area
