@@ -18,7 +18,9 @@ function [qs,ints,errs,Areas,As,Aerrs,header,orig,injectionEB] = B1integratepila
 % Edited 26.5.2009 AW The default q-range is calculated here, not in
 % radint. Also an error was corrected in the calculation of the D-matrix.
 % Edited 5.6.2009 AW radint is now called NOT with MASK, BUT 1-MASK!
-
+% Edited 21.7.2009 AW the last edit was not performed correctly and upon
+% determining the q-scale, some q-bins with 0 effective area were taken into
+% account among the normal q-bins.
 %AW parameter "orig" is not used anywhere!
 
 
@@ -133,8 +135,9 @@ for(l = 1:size(Asub,3))
     % for geometry, angle dependent transmission and gas absorption.
 
     % 26.5.2009 AW. Calculate the q-range here, not in radint.
-    dmin=min(min(D(mask==0))); % the point which is nearest to the origin among the nonmasked points.
-    dmax=max(max(D(mask==0)));
+    % 21.7.2009 SE. mask==0 -> mask~=0 because of edit AW 5.6.2009.
+    dmin=min(min(D(mask~=0))); % the point which is nearest to the origin among the nonmasked points.
+    dmax=max(max(D(mask~=0)));
     qmin=4*pi*sin(0.5*atan(dmin/header(l).Dist))*header(l).EnergyCalibrated/HC;
     qmax=4*pi*sin(0.5*atan(dmax/header(l).Dist))*header(l).EnergyCalibrated/HC;
     qrange=linspace(qmin,qmax,0.5*min(size(As(:,:,l))));
