@@ -29,9 +29,9 @@ else
     return
 end;
 
-pixsize = 0.8; % mm
-safetylimit = 3; % Estimate of how many pixels have to be disregarded near the beamstop
-pix = [(bsR/pixsize+safetylimit):1:(sqrt(2)*240/2)]; % Pixel range
+pixsize = 0.172; % mm
+safetylimit = 1.5; % Estimate of how many pixels have to be disregarded near the beamstop
+pix = [(bsR/pixsize+safetylimit):1:(sqrt(473^2 + 564^2))]; % Pixel range
 
 theta2 = atan(pix*pixsize/distance);
 

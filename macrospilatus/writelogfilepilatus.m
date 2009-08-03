@@ -16,6 +16,7 @@ function f = writelogfile(header,ori,thick,dclevel,realenergy,distance,mult,errm
 % Edited 19.9.2007 UV: Added FSN.
 % Edited 2.1.2008 UV, added monitor counts
 % Edited 6.5.2008 UV, corrected absolute primary intensity calculation
+% 19.6.2009 UV added rotations of sample stage
 
 name = sprintf('intnorm%d.log',getfield(header,'FSN'));
 fid = fopen(name,'wt');
@@ -44,7 +45,8 @@ fprintf(fid,'Beam size X Y (mm):\t%.2f %.2f\n',getfield(header,'BeamsizeX'),getf
 fprintf(fid,'Pixel size of 2D detector (mm):\t%.4f\n',pixelsize);
 fprintf(fid,'Primary intensity at monitor (counts/sec):\t%.1f\n',getfield(header,'Monitor')/getfield(header,'MeasTime'));
 fprintf(fid,'Primary intensity calculated from GC (photons/sec/mm^2):\t%e\n',getfield(header,'Monitor')/getfield(header,'MeasTime')/mult/(getfield(header,'BeamsizeX')*getfield(header,'BeamsizeY')));
-
+fprintf(fid,'Sample rotation around x axis:\t%e\n',header.Rot1);
+fprintf(fid,'Sample rotation around y axis:\t%e\n',header.Rot2);
 
 fclose(fid);
 

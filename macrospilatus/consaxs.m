@@ -33,7 +33,7 @@ i3 = min(find(qusaxs > qy1));
 i4 = min(find(qusaxs > qy2));
 
 % Integrating over the data sets at the same location to get a relation.
-const2 = 1000; % To improve accuracy of the calculation.
+const2 = 10000; % To improve accuracy of the calculation.
 points = min(length(i1:i2),length(i3:i4));
 [qbin1,intbin1] = tobins(qusaxs,datausaxs,errorusaxs,points,qy1,qy2);
 [qbin2,intbin2] = tobins(qsaxs,datasaxs,errorsaxs,points,qy1,qy2);

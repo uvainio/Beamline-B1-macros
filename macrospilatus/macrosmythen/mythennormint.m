@@ -51,7 +51,7 @@ for(k = 1:length(fsns))
       data(counter2).Error = data(counter2).Error.*cor/header.Transm/header.Monitor;
       
          fclose(fid);
-       dat = [data(counter2).q' data(counter2).Intensity data(counter2).Error];
+       dat = [data(counter2).q data(counter2).Intensity data(counter2).Error];
        writemythenfile(data(counter2).q,data(counter2).Intensity,data(counter2).Error,fsns(k));
        counter2 = counter2 + 1;
       end;

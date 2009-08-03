@@ -1,6 +1,6 @@
-function sumanduniteB1pilatus(data,param,samplename,uniq,dist,q1,q2,samplename2)
+function sumanduniteB1pilatuswaxs(data,param,samplename,uniq,dist,q1,q2,uniqwaxs,q1waxs,q2waxs)
 
-% function sumanduniteB1pilatus(data,param,samplename,uniq,dist,q1,q2,samplename2)
+% function sumanduniteB1pilatuswaxs(data,param,samplename,uniq,dist,q1,q2,uniqwaxs,q1waxs,q2waxs)
 %
 % dist = e.g. [3635 935]
 % 
@@ -9,16 +9,16 @@ function sumanduniteB1pilatus(data,param,samplename,uniq,dist,q1,q2,samplename2)
 % Added saving of only summed files, if one distance is missing.
 % 16.5.2009 UV: Added samplename2 in case name in short and long distance
 % measurements was different, put the same name if they were the same
+% Edited: 27.7.2009 UV, added WAXS
 
 datasum = sumintegratedB1pilatus(data,param,samplename);
-
-if(nargin>7)
-   datasum2 = sumintegratedB1pilatus(data,param,samplename2);
-else
-    datasum2 = [];
-    samplename2 = samplename;
+% Load in WAXS data
+[datawaxs,paramwaxs] = readintnormmythen([param(1).FSN:param(end).FSN]);
+if(isstruct(datawaxs))
+   % Sum waxs data
+   datasumwaxs = sumintegratedB1mythen(datawaxs,paramwaxs,samplename);
 end;
-datasum = [datasum datasum2];
+
 dist = sort(dist);
 disp('Uniting data, please check that curves match before pressing enter.');
 energies = [];
@@ -36,17 +36,22 @@ bothfound = 0;
 for(h = 1:length(energies))
   for(l = 1:length(temperatures))
   for(k = 1:sd(2)) % Allowing 2 eV mismatch in the short and long distance energies
-    if((strcmp(datasum(k).Title,samplename) | strcmp(datasum(k).Title,samplename2)) & dist(1)/datasum(k).Dist > 0.95 & dist(1)/datasum(k).Dist < 1.05 & datasum(k).EnergyCalibrated./energies(h) > 0.9997 & datasum(k).EnergyCalibrated./energies(h) < 1.0003 & temperatures(l)/datasum(k).Temperature > 0.9 & temperatures(l)/datasum(k).Temperature < 1.1)
+    if(strcmp(datasum(k).Title,samplename) & dist(1)/datasum(k).Dist > 0.95 & dist(1)/datasum(k).Dist < 1.05 & datasum(k).EnergyCalibrated./energies(h) > 0.9997 & datasum(k).EnergyCalibrated./energies(h) < 1.0003 & temperatures(l)/datasum(k).Temperature > 0.9 & temperatures(l)/datasum(k).Temperature < 1.1)
         bothfound = bothfound + 1; % Short distance
         short = struct('q',datasum(k).q,'Intensity',datasum(k).Intensity,'Error',datasum(k).Error,'Temperature',datasum(k).Temperature);
-    elseif((strcmp(datasum(k).Title,samplename) | strcmp(datasum(k).Title,samplename2)) & dist(2)/datasum(k).Dist > 0.95 & dist(2)/datasum(k).Dist < 1.05 & round(datasum(k).EnergyCalibrated) == round(energies(h)) & temperatures(l)/datasum(k).Temperature > 0.9 & temperatures(l)/datasum(k).Temperature < 1.1)
+    elseif(strcmp(datasum(k).Title,samplename)  & dist(2)/datasum(k).Dist > 0.95 & dist(2)/datasum(k).Dist < 1.05 & round(datasum(k).EnergyCalibrated) == round(energies(h)) & temperatures(l)/datasum(k).Temperature > 0.9 & temperatures(l)/datasum(k).Temperature < 1.1)
         bothfound = bothfound + 1; % long distance
         long = struct('q',datasum(k).q,'Intensity',datasum(k).Intensity,'Error',datasum(k).Error,'Temperature',datasum(k).Temperature);
+    end;
+    % Find WAXS
+    if(k <= length(datasumwaxs) & strcmp(datasumwaxs(k).Title,samplename) & round(datasumwaxs(k).EnergyCalibrated) == round(energies(h)) & temperatures(l)/datasumwaxs(k).Temperature > 0.9 & temperatures(l)/datasumwaxs(k).Temperature < 1.1)
+        waxs = struct('q',datasumwaxs(k).q,'Intensity',datasumwaxs(k).Intensity,'Error',datasumwaxs(k).Error,'Temperature',datasumwaxs(k).Temperature);
     end;
     if(bothfound == 2) % Short and long distance found so unite them
       if(long.Temperature./short.Temperature <1.1 | long.Temperature./short.Temperature <0.9)
          disp(sprintf('Uniting at energy %f.',datasum(k).EnergyCalibrated))
-         [f,multipl] = consaxs([short.q short.Intensity short.Error],[long.q long.Intensity long.Error],uniq, q1,q2,samplename);
+         [f1,multipl] = consaxs([short.q short.Intensity short.Error],[long.q long.Intensity long.Error],uniq, q1,q2,samplename);
+         [f,multipl2] = consaxs([waxs.q waxs.Intensity waxs.Error],f1,uniqwaxs,q1waxs,q2waxs,samplename);
          name = sprintf('united%d.dat',min(datasum(k).FSN));
          title(name);
          fid = fopen(name,'w');
@@ -73,6 +78,7 @@ for(h = 1:length(energies))
             fprintf(fid,'Calibrated energy: %e\n',datasum(k).EnergyCalibrated);
             fprintf(fid,'Multiplied short distance data by: %f\n',multipl);
             fprintf(fid,'Temperature: %.f (long) %.f (short)\n',long.Temperature,short.Temperature);
+            fprintf(fid,'Multiplied WAXS data by: %f\n',multipl2);
             fclose(fid);
             disp(sprintf('Saved %s',name));
          else

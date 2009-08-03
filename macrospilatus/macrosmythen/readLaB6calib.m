@@ -28,16 +28,28 @@ data2 = fliplr(data2);
 % From National Institute of Standards & Technology Certificate
 % Standard Reference Material® 660a Lanthanum Hexaboride Powder
 % Line Position and Line Shape Standard for Powder Diffraction
+<<<<<<< HEAD:macrospilatus/macrosmythen/readLaB6calib.m
 % 0.1695 0.1468 from PowderCell file.
 dLaB6 = [0.41569 0.29394 0.24000 0.20785 0.18590 0.1695 0.1468]*10; % in Angstrom
 %[q,tth,qpix] = qrange(length(data2),data2+data1,dLaB6,energy);
 
 [q,tth,qpix,lamq] = qrange(length(data2),data2,dLaB6(1:peaks),energy);
+=======
+% from 0.1695 0.1468 onwards from PowderCell file.
+dLaB6 = [0.41569 0.29394 0.24000 0.20785 0.18590 0.1695 0.1468 0.1384 0.1313 0.1252 0.1199 0.1152 0.1110 0.1038 0.1007]*10; % in Angstrom
+%[q,tth,qpix] = qrange(length(data2),data2+data1,dLaB6,energy);
+
+[q,tth,qpix,lamq] = qrange(length(data2),data2,dLaB6(peaks),energy);
+>>>>>>> master:macrospilatus/macrosmythen/readLaB6calib.m
 
 data.q = q;
 data.tth = tth;
 data.Intensity = data2;
 data.Error = sqrt(data2);
 data.qpix = qpix;
+<<<<<<< HEAD:macrospilatus/macrosmythen/readLaB6calib.m
 data.d = dLaB6(1:peaks);
+=======
+data.d = dLaB6(peaks);
+>>>>>>> master:macrospilatus/macrosmythen/readLaB6calib.m
 data.lamq = lamq;

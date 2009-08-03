@@ -1,5 +1,5 @@
-function [qs,ints,errs,areas,params]=reintegrateB1pilatus(fsn,mask,qrange)
-% function [qs,ints,errs,areas,params]=reintegrateB1pilatus(fsn,mask,qrange)
+function [qs,ints,errs,areas,params]=reintegrateB1pilatus(fsn,mask,sddistance,qrange)
+% function [qs,ints,errs,areas,params]=reintegrateB1pilatus(fsn,mask,sddistance,qrange)
 %
 % Re-integrate 2d scattering patterns
 %
@@ -39,13 +39,15 @@ counter=0;
 for i=1:length(fsn)
     tmp=readlogfilepilatus(sprintf('intnorm%d.log',fsn(i)));
     if isstruct(tmp)
-        counter=counter+1;
-        params(counter)=tmp;
+        if(tmp.Dist == sddistance) % Added restriction that only one distance is loaded, UV 16.7.2009
+           counter=counter+1;
+           params(counter)=tmp;
+        end;
     end
 end
 disp('...done.');
 
-if nargin<3 %qrange was not supplied.
+if nargin<4 %qrange was not supplied. 3 before, 4 after adding sddistance UV
     disp('Determining common q-range for given FSN range.');
     Nq=sqrt(size(mask,2)^2+size(mask,1)^2); % default number of auto-generated q-bins
     qrange=[]; %empty to signal that this should be generated.

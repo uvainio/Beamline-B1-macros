@@ -1,6 +1,6 @@
-function B1normintallpilatus(fsn1,thicksfile,sens,errorsens,mask,energymeas,energycalib,distminus,pri)
+function B1normintallpilatus(fsn1,thicksfile,sens,errorsens,mask,energymeas,energycalib,distminus,pri,mythendistance,mythenpixelshift)
 
-% function B1normintallpilatus(fsn1,thicksfile,sens,errorsens,mask,energymeas,energycalib,distminus,pri)
+% function B1normintallpilatus(fsn1,thicksfile,sens,errorsens,mask,energymeas,energycalib,distminus,pri,mythendistance,mythenpixelshift)
 %
 % Finds automatically empty beam and reference measurements and the samples
 % related to those measurements and integrates, subtract dark current,
@@ -30,6 +30,9 @@ function B1normintallpilatus(fsn1,thicksfile,sens,errorsens,mask,energymeas,ener
 %             (1st inflection points of foils)
 % energycalib = the true energies corresponding to the measured 1st
 %               inflection points (for example from Kraft et al. 1996)
+% mythendistance = distance from goniometer center to the WAXS detector (MYTHEN), if WAXS detector was not used, put any number
+%                    2009 spring 133.8320 mm
+% mythenpixelshift = shift in pixels from 0 of the MYTHEN detector (2009 spring 300.3417)
 % orig = (optional) initial guess for center of the beam e.g. [122.5 124.2]
 %
 % OUT:
@@ -82,8 +85,8 @@ end;
 sz_emptys=size(emptys);
 for(m =1:(sz_emptys(1)-1))
   if(emptys(m+1,1) > fsn1found(emptys(m+1,2)-1)) % Process only if next file from empty is not empty
-      B1normintpilatus1(fsn1found(emptys(m,2):(emptys(m+1,2)-1)),thicksfile,sens,errorsens,mask,energymeas,energycalib,distminus,pri);
+      B1normintpilatus1(fsn1found(emptys(m,2):(emptys(m+1,2)-1)),thicksfile,sens,errorsens,mask,energymeas,energycalib,distminus,pri,mythendistance,mythenpixelshift);
   end;
 end;
 % And the last one separately
-B1normintpilatus1(fsn1found(emptys(end,2):end),thicksfile,sens,errorsens,mask,energymeas,energycalib,distminus,pri);
+B1normintpilatus1(fsn1found(emptys(end,2):end),thicksfile,sens,errorsens,mask,energymeas,energycalib,distminus,pri,mythendistance,mythenpixelshift);

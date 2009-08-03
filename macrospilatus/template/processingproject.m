@@ -2,12 +2,14 @@
 %%%% PILATUS data
 addpath D:\Projekte\2009\project\processing
 addpath D:\Projekte\2009\project\data1
+addpath D:\git\awacha\uvainio-Beamline-B1-macros-bd030f0fa7840674e422bb39f47f4b3df8348eb1\macrospilatus
+addpath D:\git\awacha\uvainio-Beamline-B1-macros-bd030f0fa7840674e422bb39f47f4b3df8348eb1\macrospilatus\macrosmythen
+addpath D:\git\awacha\uvainio-Beamline-B1-macros-bd030f0fa7840674e422bb39f47f4b3df8348eb1\macrospilatus\calibrationfiles
+addpath D:\git\awacha\uvainio-Beamline-B1-macros-bd030f0fa7840674e422bb39f47f4b3df8348eb1\macrospilatus\dataqualitytools
+addpath D:\matlabmacros\2008\pilatusnotopenaccess
+cd D:\git\awacha\uvainio-Beamline-B1-macros-bd030f0fa7840674e422bb39f47f4b3df8348eb1\macrospilatus
+mex -v -DRADINT radint2.c -output radint
 cd D:\Projekte\2009\project
-addpath D:\matlabmacros\2008\macrospilatus
-addpath D:\matlabmacros\2008\macrosmythen
-addpath D:\matlabmacros\2008\macrospilatus\calibrationfiles
-addpath D:\matlabmacros\2008\macrospilatus\analysis
-addpath D:\matlabmacros\2008\macrospilatus\dataqualitytools
 
 % Energy scale calibration
 energycalib = [13880.70 17995.88 ]; % Pt_L3, Pt_L1, Pt_L2, Zr_K

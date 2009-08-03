@@ -1,6 +1,6 @@
 function [qout,intout,errout,header,errmult,energyreal,distance] = B1normintpilatus1(fsn1,thicknesses,sens,errorsens,mask,energymeas,energycalib,distminus,pri,mythendistance,mythenpixelshift,orig)
 
-% [qout,intout,errout,header] = B1normintpilatus1(fsn1,thicknesses,sens,errorsens,mask,energymeas,energycalib,distminus,pri)
+% [qout,intout,errout,header] = B1normintpilatus1(fsn1,thicknesses,sens,errorsens,mask,energymeas,energycalib,distminus,pri,mythendistance,mythenpixelshift)
 %
 % IN:
 % thicknesses = either one thickness in cm or a structure containing
@@ -40,7 +40,7 @@ function [qout,intout,errout,header,errmult,energyreal,distance] = B1normintpila
 
 GCareathreshold=10;
 pixelsize = 0.172; % mm
-dclevel = 6/(619*487); % counts per second to one pixel of the detector, estimation for the dark current
+dclevel = 15/(619*487); % counts per second to one pixel of the detector, estimation for the dark current
 distancefromreferencetosample = 219; % mm, distance from reference sample holder to normal sample holder
 detshift = 10;
 
@@ -58,10 +58,6 @@ if(numel(energycalib)~=numel(energymeas) | numel(energycalib)<2)
    disp('STOPPING. Variables energycalib and energymeas should contain equal amount of\npoints and at least two points to be able to make the energy calibration.')
    return
 end;    
-
-warning('setting mythendistance and mythenpixelshift. This is only for testing, watch out!')
-mythendistance=133.8320;
-mythenpixelshift=300.3417;
 
 if(nargin < 12) % Integrate each matrix separately % AW updated parameter list and returned values
   [qs,ints,errs,areas,As,Aerrs,header,ori,injectionEB] = B1integratepilatus(fsn1,dclevel,sens,errorsens,mask,pri,energymeas,energycalib,distminus,detshift);
@@ -111,6 +107,7 @@ if(counterref == 1) % Found at least one reference measurement
 posref155 = 129;
 posref500 = 139;
 posref1000 = 159;
+%posrefGGGC500 = 159.26;
 %posref155 = 130.4; % old positions
 %posref500 = 140.4;
 %posref1000 = 160.4;
@@ -124,6 +121,9 @@ posref1000 = 159;
  elseif(round(referencemeas)==round(posref1000))
      load calibrationfiles\GC1000.dat;
      GCdata(:,1:3) = GC1000; thickGC = 992*10^-4; % in cm
+% elseif(round(referencemeas)==round(posrefGGGC500))
+%     load calibrationfiles\GC500Guenter_invcm_plateau.dat;
+%     GCdata(:,1:3) = GC500Guenter_invcm_plateau; thickGC = 500*10^-4; % in cm
  end;
 end;
 %     load GC500.dat;
@@ -333,9 +333,8 @@ for(k = 1:sizeints(2))
        write2dintfile(Aout(:,:,counter),Aerrout(:,:,counter),header(k));
 %%% 29.5.2009 Added myhen UV, mythendistance 133.8320, mythenpixelshift = 300.3417
        [qmythen,tthmythen] = qfrompixelsizeB1(mythendistance-distminus,0.05,header(k).EnergyCalibrated,mythenpixelshift+[0:1279]);
-       mythennormint('waxs_',header(k).FSN,qmythen',tthmythen','angle');
        %removed ' from tthmythen AW 4.6.2009
-       mythennormint('waxs_',header(k).FSN,qmythen',tthmythen,'angle');
+       mythennormint('waxs_',header(k).FSN,qmythen,tthmythen,'angle');
        counter = counter + 1;
        if(isstruct(thicknesses)) % If thicknesses are given in a structure
          flagthick = 0; % Resetting flag.

@@ -51,7 +51,11 @@ for(k = 1:length(fsns))
       end;
       
       fclose(fid);
+<<<<<<< HEAD:macrospilatus/macrosmythen/readmythen.m
       dat = [data(counter2).q' data(counter2).Intensity data(counter2).Error];
+=======
+      dat = [data(counter2).q data(counter2).Intensity data(counter2).Error];
+>>>>>>> master:macrospilatus/macrosmythen/readmythen.m
       writemythenfile(data(counter2).q,data(counter2).Intensity,data(counter2).Error,fsns(k));
       counter2 = counter2 + 1;
    end;

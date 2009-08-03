@@ -12,6 +12,7 @@ function param = readlogfile(filename)
 %
 % Created 14.9.2007 UV
 % Edited 2.1.2008 UV, added monitor counts
+% 19.6.2009 UV added rotations of sample stage
 
 fid = fopen(filename,'r');
 if(fid == -1)
@@ -23,7 +24,7 @@ else
 param = struct('FSN',0,'Title','-','Dist',0,'Thickness',0,'Transm',0,'PosSample',-1,'Temperature',0,...
     'MeasTime',0,'ScatteringFlux',0,'FSNdc',0,'FSNempty',0,'InjectionEB','-','FSNref1',0,'Thicknessref1',0,'InjectionGC','-',...
     'Energy',0,'EnergyCalibrated',0,'BeamPosX',0,'BeamPosY',0,'NormFactor',0,'NormFactorRelativeError',-1,...
-    'BeamsizeX',0,'BeamsizeY',0,'PixelSize',0,'Monitor',0,'PrimaryIntensity',0);
+    'BeamsizeX',0,'BeamsizeY',0,'PixelSize',0,'Monitor',0,'PrimaryIntensity',0,'RotXsample',0,'RotYsample',0);
 % Read in file and save to structure 'param'.
 temp = fscanf(fid,'FSN:\t%d\n',1);
 param = setfield(param,'FSN',temp);
@@ -75,6 +76,9 @@ temp = fscanf(fid,'Primary intensity at monitor (counts/sec):\t%f\n',1);
 param = setfield(param,'Monitor',temp);
 temp = fscanf(fid,'Primary intensity calculated from GC (photons/sec/mm^2):\t%e\n',1);
 param = setfield(param,'PrimaryIntensity',temp);
+param = setfield(param,'RotXsample',temp);
+temp = fscanf(fid,'Sample rotation around y axis:\t%e\n',1);
+param = setfield(param,'RotYsample',temp);
 
 fclose(fid);
 end;

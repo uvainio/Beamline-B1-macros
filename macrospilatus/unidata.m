@@ -10,18 +10,22 @@ function dat = unidata(datA, datB, qcon)
 % OUT:
 % dat = united data
 % Created: Ulla Vainio (about 2000)
+% Edited: UV 31.7.2009 corrected i1 and i2 calculations
 
 qA = datA(:,1);      qB = datB(:,1);
 dataA = datA(:,2);   dataB = datB(:,2);
 errorA = datA(:,3);  errorB = datB(:,3);
 
-i1 = find(qA<qcon);
-if(qA(i1(2:end)) ~= 0)
-  i1 = max(i1); % If the last q-value is zero..
-else
-  i1 = i1 - 1;
-end;
-i2 = min(find(qB>qcon));
+temp = find(qA<qcon);
+i1 = temp(end);
+%if(qA(i1(2:end)) ~= 0)
+%  i1 = max(i1); % If the last q-value is zero..
+%else
+%  i1 = i1 - 1;
+%end;
+
+temp = find(qB>qcon);
+i2 = temp(1);
 
 q = ones(length(qA(1:i1)) + length(qB(i2:length(qB))),1);
 data = q; % Ones.

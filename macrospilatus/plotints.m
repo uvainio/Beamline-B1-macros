@@ -7,6 +7,7 @@ function legend1 = plotints(data,param,samplename,energies,symboll,mult)
 % Maximum five energies in vector energies
 %
 % Created 2.11.2007 UV
+% Corrected legend to more universal, 10.6.2009 Ulla Vainio
 
 sd = size(data);
 energies = round(energies);
@@ -20,26 +21,67 @@ if(nargin<5)
     symboll = '-';
 end;
 
+flagenergy1 = 0;
+flagenergy2 = 0;
+flagenergy3 = 0;
+flagenergy4 = 0;
+flagenergy5 = 0;
+counterlegend = 1;
+% Plot only for legends
+for(k = 1:sd(2))
+  if(strcmp(param(k).Title,samplename)) % & dist/param(k).Dist > 0.95 & dist/param(k).Dist < 1.05)
+    if(round(param(k).Energy) == energies2(1) & flagenergy1 == 0)
+      loglog(data(k).q,data(k).Intensity*mult,sprintf('%sb',symboll)); hold on
+      if(flagenergy1 == 0 & counterlegend <= length(energies2)-any(energies2))
+         legend1(counterlegend) = {sprintf('E = %.1f',param(k).Energy)};
+         counterlegend = counterlegend + 1;
+         flagenergy1 = 1;
+      end;
+    elseif(round(param(k).Energy) == energies2(2) & flagenergy1 == 1)
+      loglog(data(k).q,data(k).Intensity*mult,sprintf('%sg',symboll)); hold on
+      if(flagenergy2 == 0 & counterlegend <= length(energies2)-any(energies2))
+         legend1(counterlegend) = {sprintf('E = %.1f',param(k).Energy)};
+         counterlegend = counterlegend + 1;
+         flagenergy2 = 1;
+      end;
+    elseif(round(param(k).Energy) == energies2(3) & flagenergy2 == 1)
+      loglog(data(k).q,data(k).Intensity*mult,sprintf('%sr',symboll)); hold on
+      if(flagenergy3 == 0 & counterlegend <= length(energies2)-any(energies2))
+         legend1(counterlegend) = {sprintf('E = %.1f',param(k).Energy)};
+         counterlegend = counterlegend + 1;
+         flagenergy3 = 1;
+      end;
+    elseif(round(param(k).Energy) == energies2(4) & flagenergy3 == 1)
+      loglog(data(k).q,data(k).Intensity*mult,sprintf('%sk',symboll)); hold on
+      if(flagenergy4 == 0 & (counterlegend <= length(energies2)-any(energies2)))
+         legend1(counterlegend) = {sprintf('E = %.1f',param(k).Energy)};
+         counterlegend = counterlegend + 1;
+         flagenergy4 = 1;
+      end;
+    elseif(round(param(k).Energy) == energies2(5) & flagenergy4 == 1)
+      loglog(data(k).q,data(k).Intensity*mult,sprintf('%sm',symboll)); hold on
+      if(flagenergy5 == 0 & (counterlegend <= length(energies2)-any(energies2)))
+         legend1(counterlegend) = {sprintf('E = %.1f',param(k).Energy)};
+         counterlegend = counterlegend + 1;
+         flagenergy5 = 1;
+      end;
+    end;
+  end;
+end;
+
+% Plot all
 for(k = 1:sd(2))
   if(strcmp(param(k).Title,samplename)) % & dist/param(k).Dist > 0.95 & dist/param(k).Dist < 1.05)
     if(round(param(k).Energy) == energies2(1))
       loglog(data(k).q,data(k).Intensity*mult,sprintf('%sb',symboll)); hold on
-%      legend1 = {sprintf('T = %.1f',param(1).Temperature)};
-      legend1(1) = {sprintf('E = %.1f',param(k).Energy)};
-%      legend1 = {sprintf('%s',param(k).Title)};
     elseif(round(param(k).Energy) == energies2(2))
       loglog(data(k).q,data(k).Intensity*mult,sprintf('%sg',symboll)); hold on
-      legend1(2) = {sprintf('E = %.1f',param(k).Energy)};
     elseif(round(param(k).Energy) == energies2(3))
       loglog(data(k).q,data(k).Intensity*mult,sprintf('%sr',symboll)); hold on
-      legend1(3) = {sprintf('E = %.1f',param(k).Energy)};
     elseif(round(param(k).Energy) == energies2(4))
       loglog(data(k).q,data(k).Intensity*mult,sprintf('%sk',symboll)); hold on
-      legend1(4) = {sprintf('E = %.1f',param(k).Energy)};
     elseif(round(param(k).Energy) == energies2(5))
       loglog(data(k).q,data(k).Intensity*mult,sprintf('%sm',symboll)); hold on
-      legend1(5) = {sprintf('E = %.1f',param(k).Energy)};
     end;
   end;
 end; hold off
-
