@@ -98,9 +98,9 @@ for(l = 1:size(Asub,3))
     %pause;
     % From this D, we get the theta matrix, which we need to supply to
     % correction functions:
-    tth=atan(D/header(l).Dist); % this is 2*theta, not simply theta!
+    tth=atan(D/header(l).Dist); % this is 2*theta, not simply theta! in radians
     spatialcorr=geomcorrectiontheta(tth,header(l).Dist);
-    absanglecorr=absorptionangledependent(tth*180/pi,header(l).Transm);
+    absanglecorr=absorptionangledependenttth(tth,header(l).Transm);
     gasabsorptioncorr=gasabsorptioncorrectionpilatustheta(header(l).EnergyCalibrated,tth);
     % Carry out all the corrections on the 2D intensities and errors as
     % well.
