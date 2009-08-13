@@ -11,6 +11,9 @@ function data = mythennormint(prefix,fsns,q,tth,slit)
 % Edited: 5.6.2009 Andras Wacha, added cor=cor(:) after
 % absorptionangledependent(), because the new version of that macro does
 % not issue this at the end (see its source code, why).
+% Edited: 13.8.2009 Ulla Vainio, Correction: intensity is normalized also now by
+% measurement time
+
 badpixels = [6 307 308 309 380 410 491 492 493 1257:1:1280];
 
 counter2 = 1;
@@ -47,8 +50,10 @@ for(k = 1:length(fsns))
 
       cor = absorptionangledependent(tth,header.Transm);
       cor=cor(:); % AW 5.6.2009
-      data(counter2).Intensity = data(counter2).Intensity.*cor/header.Transm/header.Monitor;
-      data(counter2).Error = data(counter2).Error.*cor/header.Transm/header.Monitor;
+      % Normalized now also by measurement time! Monitor is normalized by
+      % measurement time
+      data(counter2).Intensity = data(counter2).Intensity.*cor/header.Transm/header.Monitor/header.MeasTime;
+      data(counter2).Error = data(counter2).Error.*cor/header.Transm/header.Monitor/header.MeasTime;
       
          fclose(fid);
        dat = [data(counter2).q data(counter2).Intensity data(counter2).Error];

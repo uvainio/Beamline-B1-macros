@@ -2,13 +2,13 @@
 %%%% PILATUS data
 addpath D:\Projekte\2009\project\processing
 addpath D:\Projekte\2009\project\data1
-addpath D:\git\awacha\uvainio-Beamline-B1-macros-bd030f0fa7840674e422bb39f47f4b3df8348eb1\macrospilatus
-addpath D:\git\awacha\uvainio-Beamline-B1-macros-bd030f0fa7840674e422bb39f47f4b3df8348eb1\macrospilatus\macrosmythen
-addpath D:\git\awacha\uvainio-Beamline-B1-macros-bd030f0fa7840674e422bb39f47f4b3df8348eb1\macrospilatus\calibrationfiles
-addpath D:\git\awacha\uvainio-Beamline-B1-macros-bd030f0fa7840674e422bb39f47f4b3df8348eb1\macrospilatus\dataqualitytools
+addpath D:\git\Beamline-B1-macros\macrospilatus
+addpath D:\git\Beamline-B1-macros\macrospilatus\macrosmythen
+addpath D:\git\Beamline-B1-macros\macrospilatus\calibrationfiles
+addpath D:\git\Beamline-B1-macros\macrospilatus\dataqualitytools
 addpath D:\matlabmacros\2008\pilatusnotopenaccess
-cd D:\git\awacha\uvainio-Beamline-B1-macros-bd030f0fa7840674e422bb39f47f4b3df8348eb1\macrospilatus
-mex -v -DRADINT radint2.c -output radint
+cd D:\git\Beamline-B1-macros\macrospilatus
+mex -v -DRADINT -DNSUBDIV=1 radint2.c -output radint
 cd D:\Projekte\2009\project
 
 % Energy scale calibration
@@ -38,12 +38,15 @@ load D:\Projekte\2009\project\processing\maskshort.mat
 %%%%%%%%%%%%%%%%%%%%
 
 thicknesses = struct('sample1',0.01,'sample2',0.01,'Reference_on_GC_holder_after_sample_sequence',0.1); % Thickness in cm
+distminus = 0;
+mythendistance = 132.2381; % old value 132.0722;
+mythenpixelshift = 291.2323; % old value 313.5302;
 
 %%%% LONG distance
-B1normintallpilatus([11:17],thicknesses,sens,errorsens,mask,energymeas,energycalib,0,pri,133,300);
+B1normintallpilatus([11:17],thicknesses,sens,errorsens,mask,energymeas,energycalib,distminus,pri,mythendistance,mythenpixelshift);
 
 %%% SHORT distance
-B1normintallpilatus([206:207],thicknesses,sens,errorsens,maskshort,energymeas,energycalib,0,pri,133,300);
+B1normintallpilatus([206:207],thicknesses,sens,errorsens,maskshort,energymeas,energycalib,distminus,pri,mythendistance,mythenpixelshift);
 
 [datap,paramp] = readintnormpilatus(91:400);
 legend1 = plotints(datap,paramp,'sample1',[17030],'-',1); hold on
@@ -58,9 +61,12 @@ plotintstime(datap,paramp,'sample1',[17030],'--',1); hold on
 hold off
 
 
-%%% Bin the data
-savebinnedpilatus([??:??],3625,100,0.008,0.29); % Long
-savebinnedpilatus([??:??],925,100,0.005,1.1); % Short
+%%% Reintegrate (rebin) the data
+% 4 tubes
+reintegrateB1pilatus(2:7,masklong,3625,[0.0075:0.002:0.208]);   % 1st data set
+% 0 tubes
+reintegrateB1pilatus(8:13,mask0,925,[0.025:0.008:0.815]);       % 1st data set
+
 
 [data,param] = readbinnedpilatus([1:800]);
 
