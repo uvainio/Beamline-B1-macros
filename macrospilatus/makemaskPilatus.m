@@ -32,20 +32,6 @@ for(k = 1:n1)
     end;
 end;
 
-% Mask bad pixels that are zero
-sA = size(A);
-if(sA(3)<5)
-    disp('Please provide more than 5 matrices in variable A to get statistics. Stopped.');
-    return;
-end;
-for(m = 1:m1)
-   for(n = 1:n1)
-      subvalues = A(n,m,:) - A(n,m,1);
-      if((mean(subvalues) == 0 & std(subvalues) == 0) | DC(n,m)>100) % Same pixel is zero or constant in every picture
-        mask(n,m) = 0;
-      end;
-   end;
-end;
 
 % Mask beamstop
 
@@ -56,6 +42,25 @@ pause
 aksel = axis;
 bsarea = round(aksel);
 mask(bsarea(3):min(bsarea(4),n1),bsarea(1):min(bsarea(2),m1)) = 0;
+
+% Mask bad pixels that are zero or constant
+sA = size(A);
+if(sA(3)<2)
+    disp('Please provide more than 5 matrices in variable A to get statistics. Stopped.');
+    return;
+end;
+counter = 0;
+for(m = 1:m1)
+   for(n = 1:n1)
+      subvalues = A(n,m,:) - A(n,m,1);
+      if(((mean(subvalues) == 0 && std(subvalues) == 0) || DC(n,m)>100) && mask(n,m)==1) % Same pixel is zero or constant in every picture
+        mask(n,m) = 0;
+        counter = counter + 1;
+      end;
+   end;
+end;
+disp(sprintf('Masked %d bad pixels (excluding beamstop area and empty gaps)',counter));
+
 
 % Check quality
 imagesc(mask);

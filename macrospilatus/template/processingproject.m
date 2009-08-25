@@ -115,3 +115,17 @@ plotdifference(data,param,'Sample1',[16496 16986],0.000001);
 
 plotdifferencebg(data,param,'Sample1',[16496 17030],'Background1'); hold off
 
+
+%%%% Calibrate MYTHEN detector
+energy1 = 12000; % Insert here the measurement energy according to the machine in eV
+temp = load('waxs_00006.dat'); % Insert here the name of the file to load (data file where the Lanthanum hexaboride measurement is)
+%%% Run these without changing anything on Matlab command window
+
+stripwidth = 0.05 % mm, that is 50 micrometers with of strips in the Mythen detector
+
+dataLaB6 = [temp(:,1) temp(:,2)];
+energyreal = energycalibration(energymeas,energycalib,energy1);
+data = readLaB6calib(dataLaB6,energyreal,1:7); % You can change the last number if you want to include more or less peaks in the fit
+
+mythendistance = stripwidth/data.lamq(1) % 132.2381 = the distance from sample to detector in mm (needed by B1nomintall)
+mythenpixelshit = data.lamq(2) % 291.2323 = shift of Mythen from 0 in pixels (needed by B1nomintall)
