@@ -76,6 +76,7 @@ temp = fscanf(fid,'Primary intensity at monitor (counts/sec):\t%f\n',1);
 param = setfield(param,'Monitor',temp);
 temp = fscanf(fid,'Primary intensity calculated from GC (photons/sec/mm^2):\t%e\n',1);
 param = setfield(param,'PrimaryIntensity',temp);
+temp = fscanf(fid,'Sample rotation around x axis:\t%e\n',1);
 param = setfield(param,'RotXsample',temp);
 temp = fscanf(fid,'Sample rotation around y axis:\t%e\n',1);
 param = setfield(param,'RotYsample',temp);
