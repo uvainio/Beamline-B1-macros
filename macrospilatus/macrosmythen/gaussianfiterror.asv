@@ -1,9 +1,0 @@
-function g = gaussianfit(lam,data,error,x)
-
-% function g = gaussianfit(lam,data,error,x)
-%
-% NOTE: Used by macro qrange.m!
-
-f = gaussianline(lam,x(:));
-
-g = sum((abs(data(:)-f)/error).^2)/1;
