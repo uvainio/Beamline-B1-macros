@@ -18,7 +18,9 @@ function mask=makemask2(mask,A,maxvalue)
 %
 %Created: [29:30].6.2009 by Andras Wacha (awacha at gmail dot com)
 
-% this is for callback mechanism.
+% this is for callback mechanism. It is a bit tricky, I know. If the first
+% argument of this function (which is called "mask") is a string, that
+% subroutine gets called with 
 if ischar(mask)
     handles=get(gcf,'UserData');
     mask=[mask,'(handles)'];
@@ -33,6 +35,67 @@ end
 A(A<=0)=min(min(A(A>0))); % remove zeroes. After this it is safe to take log(A)
 
 % these are icon bitmaps. Skip these...
+forgeticon=[
+         1     1     1     1     1     1     1     1     1     1     1     1     1     1     1     0;...
+     1     1     1     1     1     0     0     1     1     1     1     0     0     1     0     1;...
+     1     0     1     1     1     1     1     1     1     1     1     1     1     0     1     1;...
+     1     0     1     1     1     1     1     1     1     1     1     1     0     1     1     1;...
+     1     1     1     1     1     1     1     1     1     1     1     0     1     1     1     1;...
+     1     1     1     1     1     1     1     1     1     1     0     1     1     1     0     1;...
+     1     1     1     1     1     1     1     1     1     0     1     1     1     1     0     1;...
+     1     1     1     1     1     1     1     1     0     1     1     1     1     1     1     1;...
+     1     0     1     1     1     1     1     0     1     1     1     1     1     1     1     1;...
+     1     0     1     1     1     1     0     1     1     1     1     1     1     1     1     1;...
+     1     1     1     1     1     0     1     1     1     1     1     1     1     1     1     1;...
+     1     1     1     1     0     1     1     1     1     1     1     1     1     1     0     1;...
+     1     1     1     0     1     1     1     1     1     1     1     1     1     1     0     1;...
+     1     1     0     0     0     1     1     1     1     0     0     1     1     1     1     1;...
+     1     0     1     1     1     1     1     1     1     1     1     1     1     1     1     1;...
+     0     1     1     1     1     1     1     1     1     1     1     1     1     1     1     1];
+forgeticon(:,:,2)=forgeticon(:,:,1);
+forgeticon(:,:,3)=forgeticon(:,:,1);
+
+escapeicon=[
+    1     1     1     1     1     1     1     1     1     1     1     1     1     1     1     0;...
+     1     1     1     1     1     1     0     0     0     0     0     1     1     1     0     1;...
+     1     1     1     1     0     0     1     1     1     1     1     0     0     0     1     1;...
+     1     1     1     0     1     1     1     1     1     1     1     1     0     0     1     1;...
+     1     1     0     1     1     1     1     1     1     1     1     0     1     1     0     1;...
+     1     1     0     1     1     1     1     1     1     1     0     1     1     1     0     1;...
+     1     0     1     1     1     1     1     1     1     0     1     1     1     1     1     0;...
+     1     0     1     1     1     1     1     1     0     1     1     1     1     1     1     0;...
+     1     0     1     1     1     1     1     0     1     1     1     1     1     1     1     0;...
+     1     0     1     1     1     1     0     1     1     1     1     1     1     1     1     0;...
+     1     1     0     1     1     0     1     1     1     1     1     1     1     1     0     1;...
+     1     1     0     1     0     1     1     1     1     1     1     1     1     1     0     1;...
+     1     1     1     0     1     1     1     1     1     1     1     1     1     0     1     1;...
+     1     1     0     1     0     0     1     1     1     1     1     0     0     1     1     1;...
+     1     0     1     1     1     1     0     0     0     0     0     1     1     1     1     1;...
+     0     1     1     1     1     1     1     1     1     1     1     1     1     1     1     1];
+escapeicon(:,:,2)=escapeicon(:,:,1);
+escapeicon(:,:,3)=escapeicon(:,:,1);
+
+pixelhunticon=[
+     1, 1,     1     1     1     1     1     1     0     1     1     1     1     1     1     1;...
+     1     1     1     1     1     1     1     0     0     0     1     1     1     1     1     1;...
+     1     1     1     1     1     0     0     1     0     1     0     0     1     1     1     1;...
+     1     1     1     1     0     1     1     1     0     1     1     1     0     1     1     1;...
+     1     1     1     1     0     1     1     1     0     1     1     1     0     1     1     1;...
+     1     1     1     0     1     1     1     1     0     1     1     1     1     0     1     1;...
+     1     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0;...
+     1     1     1     0     1     1     1     1     0     1     1     1     1     0     1     1;...
+     1     1     1     1     0     1     1     1     0     1     1     1     0     1     1     1;...
+     1     1     1     1     0     1     1     1     0     1     1     1     0     1     1     1;...
+     1     1     1     1     1     0     0     1     0     1     0     0     1     1     1     1;...
+     1     1     1     1     1     1     1     0     0     0     1     1     1     1     1     1;...
+     1     1     1     1     1     1     1     1     0     1     1     1     1     1     1     1;...
+     1     1     1     1     1     1     1     1     0     1     1     1     1     1     1     1;...
+     1     1     1     1     1     1     1     1     0     1     1     1     1     1     1     1;...
+     1     1     1     1     1     1     1     1     1     1     1     1     1     1     1     1];
+ 
+pixelhunticon(:,:,2)=pixelhunticon(:,:,1);
+pixelhunticon(:,:,3)=pixelhunticon(:,:,1);
+
 rectangleicon=[  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1;...
 1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1;...
   1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1;...
@@ -180,21 +243,32 @@ handles.toolbar=uitoolbar();
 handles.rectangletool=uipushtool(handles.toolbar,'CData',rectangleicon,'TooltipString','Select rectangle','ClickedCallback','makemask2(''selectrectangle'');');
 handles.triangletool=uipushtool(handles.toolbar,'CData',triangleicon,'TooltipString','Select triangle','ClickedCallback','makemask2(''selecttriangle'');');
 handles.circletool=uipushtool(handles.toolbar,'CData',circleicon,'TooltipString','Select circle','ClickedCallback','makemask2(''selectcircle'');');
+handles.pixelhunttool=uipushtool(handles.toolbar,'Cdata',pixelhunticon,'TooltipString','Pixel hunting','ClickedCallback','makemask2(''gopixelhunting'');');
 handles.inverttool=uipushtool(handles.toolbar,'CData',invertmaskicon,'TooltipString','Invert mask','Separator','on','ClickedCallback','makemask2(''invertmask'');');
 handles.masktool=uipushtool(handles.toolbar,'CData',maskicon,'TooltipString','Mask area','Separator','on','ClickedCallback','makemask2(''maskit'');');
 handles.unmasktool=uipushtool(handles.toolbar,'CData',unmaskicon,'TooltipString','Unmask area','ClickedCallback','makemask2(''unmaskit'');');
 handles.flipmasktool=uipushtool(handles.toolbar,'CData',flipmaskicon,'TooltipString','Flip mask on area','ClickedCallback','makemask2(''flipmask'');');
+handles.forgettool=uipushtool(handles.toolbar,'CData',forgeticon,'TooltipString','Forget selection and redraw','ClickedCallback','makemask2(''forgetselection'');');
 handles.donetool=uipushtool(handles.toolbar,'CData',doneicon,'TooltipString','Done','Separator','on','UserData',0,'ClickedCallback','makemask2(''doneclicked'');');
+handles.escapetool=uipushtool(handles.toolbar,'CData',escapeicon,'TooltipString','Get me out of here!','Separator','on','UserData',0,'ClickedCallback','makemask2(''escapeclicked'');');
+
 handles.redrawneeded=1; % this signals if redraw is needed in the main loop
 handles.mask=mask; %the mask
+handles.origmask=mask;
 handles.pointstomask=[]; %the currently selected pixels
 handles.done=0;
+handles.pixelhunting=0;
 set(gcf,'UserData',handles); %"handles" is stored as the UserData field of the current figure
 
-% the main loop. It ends when the UserDat
+% the main loop
+firstdraw=1;
 while handles.done==0
     if handles.redrawneeded % if redraw is needed
         hold off;
+        if firstdraw==0
+            ax=axis;
+            cla;
+        end
         imagesc(log(A));
         % plot the mask semitransparently
         maskwhite=ones(size(A,1),size(A,2),3);
@@ -203,10 +277,18 @@ while handles.done==0
         set(h,'AlphaData',(handles.mask==0)*0.7);
         handles.redrawneeded=0; % redraw is not needed.
         set(gcf,'UserData',handles); %update handles
+        if firstdraw==0
+            axis(ax);
+        end
+        firstdraw=0;
     end
-    uiwait % wait for user interaction (pressing toolbar buttons). Execution
-           % returns here when uiresume is called (at the end of each callback
-           % function)
+    if handles.pixelhunting
+        dopixelhunt(handles)
+    else
+       uiwait % wait for user interaction (pressing toolbar buttons). Execution
+              % returns here when uiresume is called (at the end of each callback
+              % function)
+    end
     %fetch the possibly updated version of handles.
     handles=get(gcf,'UserData');
 end
@@ -217,6 +299,13 @@ mask=handles.mask;
 return %this is not needed, only for clarity
 
 % here come the callback routines.
+
+function escapeclicked(handles)
+   handles.done=1;
+   handles.mask=handles.origmask;
+   set(gcf,'UserData',handles);
+   uiresume
+   
 function doneclicked(handles) % this is called when the done button is clicked.
     handles.done=1;
     set(gcf,'UserData',handles);
@@ -226,10 +315,10 @@ function selectrectangle(handles)
     title('Select two opposite corners of the rectangle!')
     [gx,gy,gb]=ginput(2); % two mouse clicks
     % find the real corners of the rectangle
-    x0=max([floor(min(gx)) 1]);
-    y0=max([floor(min(gy)) 1]);
-    x1=min([ceil(max(gx)) size(handles.mask,2)]);
-    y1=min([ceil(max(gy)) size(handles.mask,1)]);
+    x0=max([ceil(min(gx)) 1]);
+    y0=max([ceil(min(gy)) 1]);
+    x1=min([floor(max(gx)) size(handles.mask,2)]);
+    y1=min([floor(max(gy)) size(handles.mask,1)]);
     %set selection
     handles.pointstomask=zeros(size(handles.mask));
     handles.pointstomask(y0:y1,x0:x1)=1;
@@ -282,7 +371,7 @@ function selecttriangle(handles) %select a triangle
     handles.pointstomask((A1>0) &(A2>0) & (A1+A2<1))=1;
     set(gcf,'UserData',handles);
     uiresume
-    
+
     
 function selectcircle(handles)
     title('Select circle center with left button')
@@ -300,6 +389,31 @@ function selectcircle(handles)
     set(gcf,'UserData',handles);
     uiresume
 
+function gopixelhunting(handles)
+   handles.pixelhunting=1;
+   set(gcf,'UserData',handles);
+   uiresume
+   
+function returnfrompixelhunting(handles)
+   title('');
+   handles.pixelhunting=0;
+   set(gcf,'UserData',handles);
+   uiresume
+   
+function dopixelhunt(handles)
+   title('Select pixels to flip the mask over. Right button to end.')
+   [gx,gy,gb]=ginput(1);
+   handles=get(gcf,'UserData'); % we need this because returnfrompixelhunting can be called during ginput().
+   if gb>1
+       title('');
+       handles.pixelhunting=0;
+   end
+   if handles.pixelhunting
+      handles.mask(floor(gy+.5),floor(gx+.5))=1-handles.mask(floor(gy+.5),floor(gx+.5));
+   end
+   handles.redrawneeded=1;
+   set(gcf,'UserData',handles);
+   
 function maskit(handles) % mask selected points
     if ~isempty(handles.pointstomask)
         handles.mask=handles.mask & ~handles.pointstomask;
@@ -338,4 +452,10 @@ function invertmask(handles) % invert the whole mask
     handles.redrawneeded=1;
     set(gcf,'UserData',handles);
     uiresume;
-    
+
+function forgetselection(handles) % forget what is selected and redraw
+    handles.pointstomask=[];
+    handles.redrawneeded=1;
+    set(gcf,'UserData',handles);
+    uiresume;
+ 
