@@ -17,10 +17,13 @@ function mask=makemask2(mask,A,maxvalue)
 %   should help.
 %
 %Created: [29:30].6.2009 by Andras Wacha (awacha at gmail dot com)
+%Edited: [21:25].9.2009 by AW. Added "pixel hunting", "forget selection"
+%  and "help, get me out of here" functionality. The auto-unzooming
+%  "feature" was removed.
 
 % this is for callback mechanism. It is a bit tricky, I know. If the first
 % argument of this function (which is called "mask") is a string, that
-% subroutine gets called with 
+% subroutine gets called with the UserData property of the current figure.
 if ischar(mask)
     handles=get(gcf,'UserData');
     mask=[mask,'(handles)'];
@@ -34,7 +37,7 @@ if nargin>2
 end
 A(A<=0)=min(min(A(A>0))); % remove zeroes. After this it is safe to take log(A)
 
-% these are icon bitmaps. Skip these...
+% these are simply icon bitmaps. Skip these...
 forgeticon=[
          1     1     1     1     1     1     1     1     1     1     1     1     1     1     1     0;...
      1     1     1     1     1     0     0     1     1     1     1     0     0     1     0     1;...
@@ -237,8 +240,10 @@ invertmaskicon(:,:,3)=invertmaskicon(:,:,1);
 %end of icon bitmaps.
 
 % here we build the toolbar.
-
-handles=struct();
+handles=struct(); % these are the global variables. Note that the name is a
+                  %bit misleading. It does not only contain the handles of
+                  %the GUI elements, but other properties like the current
+                  %mask as well.
 handles.toolbar=uitoolbar();
 handles.rectangletool=uipushtool(handles.toolbar,'CData',rectangleicon,'TooltipString','Select rectangle','ClickedCallback','makemask2(''selectrectangle'');');
 handles.triangletool=uipushtool(handles.toolbar,'CData',triangleicon,'TooltipString','Select triangle','ClickedCallback','makemask2(''selecttriangle'');');
@@ -254,19 +259,19 @@ handles.escapetool=uipushtool(handles.toolbar,'CData',escapeicon,'TooltipString'
 
 handles.redrawneeded=1; % this signals if redraw is needed in the main loop
 handles.mask=mask; %the mask
-handles.origmask=mask;
+handles.origmask=mask; % backup copy of the mask, this is returned when escapetool is pushed.
 handles.pointstomask=[]; %the currently selected pixels
-handles.done=0;
-handles.pixelhunting=0;
+handles.done=0; % this signals the main loop to end.
+handles.pixelhunting=0; % pixel hunting mode is on or off
 set(gcf,'UserData',handles); %"handles" is stored as the UserData field of the current figure
 
 % the main loop
-firstdraw=1;
+firstdraw=1; % if this is the first time we draw the image.
 while handles.done==0
     if handles.redrawneeded % if redraw is needed
         hold off;
         if firstdraw==0
-            ax=axis;
+            ax=axis; % save the current zoom
             cla;
         end
         imagesc(log(A));
@@ -275,10 +280,10 @@ while handles.done==0
         hold on;
         h=imagesc(maskwhite);
         set(h,'AlphaData',(handles.mask==0)*0.7);
-        handles.redrawneeded=0; % redraw is not needed.
+        handles.redrawneeded=0; % redraw is not needed, as it is already done.
         set(gcf,'UserData',handles); %update handles
         if firstdraw==0
-            axis(ax);
+            axis(ax); % re-zoom to the saved position.
         end
         firstdraw=0;
     end
@@ -301,18 +306,18 @@ return %this is not needed, only for clarity
 % here come the callback routines.
 
 function escapeclicked(handles)
-   handles.done=1;
-   handles.mask=handles.origmask;
-   set(gcf,'UserData',handles);
+   handles.done=1; % signalling an exit to the main loop
+   handles.mask=handles.origmask; % reverting to the older version of the mask
+   set(gcf,'UserData',handles); %updating handles
    uiresume
    
 function doneclicked(handles) % this is called when the done button is clicked.
-    handles.done=1;
+    handles.done=1; % signalling exit to the main loop
     set(gcf,'UserData',handles);
     uiresume
     
 function selectrectangle(handles)
-    title('Select two opposite corners of the rectangle!')
+    title('Select two opposite corners of the rectangle by two mouseclicks!')
     [gx,gy,gb]=ginput(2); % two mouse clicks
     % find the real corners of the rectangle
     x0=max([ceil(min(gx)) 1]);
@@ -390,7 +395,7 @@ function selectcircle(handles)
     uiresume
 
 function gopixelhunting(handles)
-   handles.pixelhunting=1;
+   handles.pixelhunting=1; % start pixel hunting
    set(gcf,'UserData',handles);
    uiresume
    
