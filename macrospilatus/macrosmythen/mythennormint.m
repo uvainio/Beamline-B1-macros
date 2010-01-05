@@ -13,6 +13,8 @@ function data = mythennormint(prefix,fsns,q,tth,slit)
 % not issue this at the end (see its source code, why).
 % Edited: 13.8.2009 Ulla Vainio, Correction: intensity is normalized also now by
 % measurement time
+% Edited: 5.1.2010 Ulla Vainio: added flipud to the error. Previously error
+% array was upside down!
 
 badpixels = [6 307 308 309 380 410 491 492 493 1257:1:1280];
 
@@ -23,6 +25,17 @@ for(k = 1:length(fsns))
 
       dat1 = load(sprintf('%s%05d.dat',prefix,fsns(k)));
       header = readheader('org_',fsns(k),'.header');
+      if(strcmp(header.Title,'Empty_beam'))
+          % exclude bad pixels
+         counter = 1;
+         for(m = 1:1280)
+             dataempty2(counter,1) = dat1(m,2);
+             if(~isempty(find(m == badpixels)))
+                dataempty2(counter,1) = 0;
+             end;
+             counter = counter + 1;
+         end;
+      end;
       if(~strcmp(header.Title,'Empty_beam'))
 
          % exclude bad pixels
@@ -36,8 +49,8 @@ for(k = 1:length(fsns))
          end;
       
        data(counter2).q = q;
-       data(counter2).Intensity = flipud(data2(:,counter2));
-       data(counter2).Error = sqrt(data2(:,counter2));
+       data(counter2).Intensity = flipud(data2(:,counter2)-dataempty2);
+       data(counter2).Error = flipud(sqrt(data2(:,counter2)));
 
          % Correct for the slit opening by dividing by the slit opening
        % slit opening in the beginning 1.09 mm, in the end 6.96 mm, slit

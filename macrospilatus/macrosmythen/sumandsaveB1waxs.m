@@ -1,8 +1,8 @@
-function sumandsaveB1mythen(data,param,samplename)
+function sumandsaveB1waxs(data,param,samplename)
 
-% function sumandsaveB1mythen(data,param,samplename)
+% function sumandsaveB1waxs(data,param,samplename)
 % 
-% Sums and then saves into summed*.dat the data.
+% Sums and then saves into summedwaxs*.dat the data.
 %
 % Created 18.12.2008 UV
 

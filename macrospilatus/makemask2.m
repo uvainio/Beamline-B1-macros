@@ -314,6 +314,10 @@ function escapeclicked(handles)
 function doneclicked(handles) % this is called when the done button is clicked.
     handles.done=1; % signalling exit to the main loop
     set(gcf,'UserData',handles);
+   %delete(handles.toolbar); %remove toolbar from figure
+   %set(gcf,'UserData',[]); %remove our data
+   %mask=handles.mask;
+   %return
     uiresume
     
 function selectrectangle(handles)

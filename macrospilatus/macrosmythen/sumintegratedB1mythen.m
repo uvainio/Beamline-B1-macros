@@ -25,18 +25,18 @@ for(h = 1:length(energies))
              if(strcmp(param(k).Title,samplename) & round(param(k).EnergyCalibrated) == round(energies(h))) % & temperatures(l)==round(param(k).Temperature))
                if(counter == 1) % Create the first structure.
                 sumq = data(k).q;
-                sumints = data(k).Intensity;
-                sumerrs = data(k).Error;
+                sumints = data(k).Intensity/max(data(k).Intensity);
+                sumerrs = data(k).Error/max(data(k).Intensity);
                 sumfsns = param(k).FSN;
                 counter = counter + 1;
                 calibratedenergy = param(k).EnergyCalibrated;
-                loglog(data(k).q,data(k).Intensity,'r'); hold on
+                loglog(data(k).q,data(k).Intensity/max(data(k).Intensity),'r'); hold on
                elseif(sum(data(k).q - sumq) == 0) % Making sure q-range is the same
-                sumints = sumints + data(k).Intensity;
-                sumerrs = sqrt(sumerrs.^2 + data(k).Error.^2);
+                sumints = sumints + data(k).Intensity/max(data(k).Intensity);
+                sumerrs = sqrt(sumerrs.^2 + (data(k).Error/max(data(k).Intensity)).^2);
                 sumfsns = [sumfsns param(k).FSN];
                 counter = counter + 1;
-                plot(data(k).q,data(k).Intensity,'r'); hold on
+                plot(data(k).q,data(k).Intensity/max(data(k).Intensity),'r'); hold on
                else
                 disp('Are you sure the data is binned to the same q-spacing?')          
                end;

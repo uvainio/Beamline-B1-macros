@@ -1,11 +1,12 @@
-function [energy,mud,samples,fullfilenamewithoutending] = readenergyfio(filename,files,fileend)
+function [energy,mud,samples,fullfilenamewithoutending] = readenergyfio(filename,files,fileend,mode)
 
-% function [energy,mud,samples] = readenergyfio(filename,files,fileend)
+% function [energy,mud,samples] = readenergyfio(filename,files,fileend,mode)
 %
 % IN:
 % filename  =  beginning of the file, e.g. 'abt_'
 % files     =  the files, e.g. [250 714:804]
 % fileend   =  the ending of the file, e.g. 'fio'
+% mode      = 'normal' or 'exafs' (optional)
 %
 % OUT:
 % energy    =  energy scale (vector)
@@ -69,18 +70,38 @@ for(k = 1:nr(2))
 %    sample = fscanf(fid,'%s',1);
     sample = fgets(fid); % Sample name.
 
+   if(nargin>3)
+       if(strcmp(mode,'exafs'))
+          for(hh = 1:37) % Reading the header lines
+             temp = fgets(fid);
+          end;
+       else
+          for(hh = 1:35) % Reading the header lines
+             temp = fgets(fid);
+          end;
+       end;
+   else
     for(hh = 1:35) % Reading the header lines
        temp = fgets(fid);
     end;
-   
+   end;
     mtemp = fscanf(fid,'%e'); % Scan in all data (energy,..., mud)
     counter2 = 1;
-    for(j = 1:11:(length(mtemp)))
+    if(nargin> 3)
+        if(strcmp(mode,'exafs'))
+           columns = 13;
+        else
+            columns = 11;
+        end;
+    else
+        columns = 11;
+    end;
+    for(j = 1:columns:(length(mtemp)))
       if(counter == 1) % Reading energy scale only from the first file.
          energy(counter2,1) = mtemp(j);
       end;
       if(counter > 1) % Checking the energy scale is the same for all.
-         if(length(energy)~=length(1:11:(length(mtemp))) | num2str(energy(counter2),'%.1f')~=num2str(mtemp(j),'%.1f'))
+         if(length(energy)~=length(1:columns:(length(mtemp))) | num2str(energy(counter2),'%.1f')~=num2str(mtemp(j),'%.1f'))
             energy(counter2)
             mtemp(j)
             sprintf('Energy scale of FSN %d is different. Stopping.',files(counter))

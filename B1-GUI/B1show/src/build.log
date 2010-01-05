@@ -1,0 +1,16 @@
+License checkout failed.
+License Manager Error -4
+Maximum number of users for Compiler reached. 
+Try again later. 
+To see a list of current users use the lmstat utility or contact your License Administrator.
+
+Troubleshoot this issue by visiting: 
+http://www.mathworks.com/support/lme4b
+
+Diagnostic Information:
+Feature: Compiler 
+License path: C:\Program Files\Matlab\R2007b\bin\win32\license.dat;C:\Program Files\Matlab\R2007b\bin\win32\*.lic; 
+FLEXnet Licensing error: -4,132.
+??? Error using ==> mcc
+Error: Could not check out a Compiler license.
+

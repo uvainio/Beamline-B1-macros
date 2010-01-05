@@ -1,4 +1,4 @@
-function [qs,ints,errs,Areas,As,Aerrs,header,orig,injectionEB] = B1integratepilatus(fsn1,dclevel,sens,errorsens,mask,pri,energymeas,energycalib,distminus,detshift,orig,transm)
+function [qs,ints,errs,Areas,As,Aerrs,header,orig,injectionEB] = B1integratepilatus(fsn1,dclevel,sens,errorsens,mask,pri,energymeas,energycalib,distminus,detshift,fluorcorr,orig,transm)
 
 % [ints,errs,header,injectionEB] = B1integratepilatus(fsn1,dclevel,sens,errorsens,mask,distminus,detshift,pri)
 % 
@@ -30,10 +30,10 @@ pixelsize = 0.172; % It is not used for q-range calibration, only for polarizati
 distancetoreference = 219;
 HC=12398.419; %Planck's constant times speed of light, eV*Angstroems, NIST 2006
 
-if(nargin < 11) %AW 7->11 as new input arguments were added.
-  [Asub,errAsub,header,injectionEB,orig] = subtractbgpilatus(fsn1,dclevel,sens,errorsens,pri,mask);
+if(nargin < 12) %AW 7->11 as new input arguments were added.
+  [Asub,errAsub,header,injectionEB,orig] = subtractbgpilatus(fsn1,dclevel,sens,errorsens,pri,mask,fluorcorr);
 else % Special case if theoretical transmission is used
-  [Asub,errAsub,header,injectionEB,orig] = subtractbgpilatus(fsn1,dclevel,sens,errorsens,pri,mask,transm);
+  [Asub,errAsub,header,injectionEB,orig] = subtractbgpilatus(fsn1,dclevel,sens,errorsens,pri,mask,fluorcorr,transm);
 end;
 %AW we do not need this, as we will use size(A,3) instead of sizeA(3).
 %sizeA = size(Asub);
@@ -105,6 +105,7 @@ for(l = 1:size(Asub,3))
     % Carry out all the corrections on the 2D intensities and errors as
     % well.
     As(:,:,l)=As(:,:,l).*spatialcorr.*absanglecorr.*gasabsorptioncorr;
+    
     Aerrs(:,:,l)=Aerrs(:,:,l).*spatialcorr.*absanglecorr.*gasabsorptioncorr;
     
     % now plot the corrected data.

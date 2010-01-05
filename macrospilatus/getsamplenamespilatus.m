@@ -2,10 +2,10 @@ function header = getsamplenamespilatus(filename,files,fileend,dontshowtitles)
 
 % function header = getsamplenamespilatus(filename,files,fileend)
 %
-% filename  = beginning of the file, e.g. 'ORG'
+% filename  = beginning of the file, e.g. 'org_'
 % files     = the files , e.g. [714:1:804] will open files from with FSN
 %             from 714 to 804
-% fileend   = e.g. '.DAT'
+% fileend   = e.g. '.header'
 %
 % OUT: prints out on the screen the names of the samples
 % in the sequence, the measurement distances and the energies

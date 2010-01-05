@@ -1,4 +1,4 @@
-function [Asub,errAsub,header,injectionEB,orig] = subtractbgpilatus(fsn1,dclevel,sens,senserr,pri,mask,transm)
+function [Asub,errAsub,header,injectionEB,orig] = subtractbgpilatus(fsn1,dclevel,sens,senserr,pri,mask,fluorcorr,transm)
 
 % function [Asub,errAsub,header] = subtractbgpilatus(fsn1,dclevel,sens,senserr,pri,mask)
 %
@@ -71,8 +71,8 @@ for(k = 1:sizeA1(3))
      elseif(getfield(headerbg(counter),'FSN')==getfield(headerbg(counter-1),'FSN'))
         Abg(:,:,counter) = Abg(:,:,counter-1); Abgerr(:,:,counter) = Abgerr(:,:,counter-1);
      end;
-     if(nargin < 7) % Normal case
-        [A2(:,:,counter),A2err(:,:,counter)] = subdcpilatus(A1(:,:,k),header1(k),1,sens,senserr,dclevel);
+     if(nargin < 8) % Normal case
+        [A2(:,:,counter),A2err(:,:,counter)] = subdcpilatus(A1(:,:,k)-fluorcorr,header1(k),1,sens,senserr,dclevel);
      else % in case theoretical transmission is used
         [A2(:,:,counter),A2err(:,:,counter)] = subdcpilatus(A1(:,:,k),header1(k),1,sens,senserr,dclevel,transm);
      end;

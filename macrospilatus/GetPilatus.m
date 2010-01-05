@@ -54,16 +54,15 @@ for i=1:length(fsqn)
       else
        fclose(fid);
       end
-      header = readheaderPilatus(sprintf('%s%.header',sprintf('%s%05d',syntaxbegin,fsqn(i))));
+      header = readheader(sprintf('%s%.header',sprintf('%s%05d',syntaxbegin,fsqn(i))));
    end;
    A = imageread(fullfile(CopyToDir,sprintf('%s%05d',syntaxbegin,fsqn(i))),'tif',[487, 619]);
-   disp(sprintf('Total %d, maximum %d counts',sum(sum(A.*mask)),max(max(A.*mask))));
+   %disp(sprintf('Total %d, maximum %d counts',sum(sum(A.*mask)),max(max(A.*mask))));
    imagesc(log(min(A,maxval)+1));
-   title(regexprep(sprintf('%s%05d, log scale',syntaxbegin,fsqn(i)),'[_]','\\_'));
+   title(regexprep(sprintf('%s%05d',syntaxbegin,fsqn(i)),'[_]','\\_'));
    axis equal
    axis image
    colormap(jet2);
-   colorbar;
    colorbar;
    drawnow
 end

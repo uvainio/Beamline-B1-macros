@@ -1,6 +1,6 @@
-function muds = readxanes(filename,files,fileend,energymeas,energycalib)
+function muds = readxanes(filename,files,fileend,energymeas,energycalib,mode)
 
-% function muds = readxanes(filename,files,fileend,energymeas,energycalib)
+% function muds = readxanes(filename,files,fileend,energymeas,energycalib,mode)
 %
 % A macro to load XANES scans and to put them on correct energy scale.
 % This macro saves the corrected absorption curves into ascii files with
@@ -13,6 +13,7 @@ function muds = readxanes(filename,files,fileend,energymeas,energycalib)
 % fileend = end of the file name, e.g. '.fio'
 % energymeas = energies measured at absorption edges of some elements
 % energycalib = the real energies at those absorption edges
+% mode      = 'normal' or 'exafs'
 %
 % OUT:
 %
@@ -41,7 +42,7 @@ function muds = readxanes(filename,files,fileend,energymeas,energycalib)
 counter = 1;
 muds = struct('Energy',[],'mud',[],'Title','','scan',[]);
 for(k = 1:length(files))
-  [energy1,mud1,sample1,fullfilenamewithoutending] = readenergyfio(filename,files(k),fileend);  
+  [energy1,mud1,sample1,fullfilenamewithoutending] = readenergyfio(filename,files(k),fileend,mode);  
   if(energy1 ~=0) % If something was found
 
     %energyreal = interp1(energymeas,energycalib,energy1,'linear','extrap');

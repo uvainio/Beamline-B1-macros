@@ -1,15 +1,15 @@
 
 %%%% PILATUS data
-addpath D:\Projekte\2009\project\processing
-addpath D:\Projekte\2009\project\data1
+addpath D:\Projekte\2010\project\processing
+addpath D:\Projekte\2010\project\data1
 addpath D:\git\Beamline-B1-macros\macrospilatus
 addpath D:\git\Beamline-B1-macros\macrospilatus\macrosmythen
 addpath D:\git\Beamline-B1-macros\macrospilatus\calibrationfiles
 addpath D:\git\Beamline-B1-macros\macrospilatus\dataqualitytools
-addpath D:\matlabmacros\2008\pilatusnotopenaccess
+addpath D:\git\pilatusnotopenaccess
 cd D:\git\Beamline-B1-macros\macrospilatus
 mex -v -DRADINT -DNSUBDIV=1 radint2.c -output radint
-cd D:\Projekte\2009\project
+cd D:\Projekte\2010\project
 
 % Energy scale calibration
 energycalib = [13880.70 17995.88 ]; % Pt_L3, Pt_L1, Pt_L2, Zr_K
@@ -22,16 +22,16 @@ errorsens = zeros(size(sens));
 % A = read2dB1datapilatus('org_',207,'.tif');
 % mask = makemask(mask,A);
 
-% save D:\Projekte\2009\project\processing\mask.mat mask
-load D:\Projekte\2009\project\processing\mask.mat
+% save D:\Projekte\2010\project\processing\mask.mat mask
+load D:\Projekte\2010\project\processing\mask.mat
 
 %%%% loading test images
 A = GetPilatus(mask,'test_',1,1000);
 % Show all data files
 getsamplenamespilatus('org_',2:7,'.header');
 
-load D:\Projekte\2009\project\processing\mask.mat
-load D:\Projekte\2009\project\processing\maskshort.mat
+load D:\Projekte\2010\project\processing\mask.mat
+load D:\Projekte\2010\project\processing\maskshort.mat
 
 %%%%%%%%%%%%%%%%%%%
 %%%%----------------
@@ -54,7 +54,7 @@ hold off
 legend([legend1]);
 xlabel(sprintf('q (1/%c)',197));
 ylabel('Intensity (1/cm)');
-% print -depsc D:\Projekte\2009\project\processing\SAXS
+% print -depsc D:\Projekte\2010\project\processing\SAXS
 
 [datap,paramp] = readintnormpilatus(91:400);
 plotintstime(datap,paramp,'sample1',[17030],'--',1); hold on

@@ -1,6 +1,6 @@
-function [qout,intout,errout,header,errmult,energyreal,distance] = B1normintpilatus1(fsn1,thicknesses,sens,errorsens,mask,energymeas,energycalib,distminus,pri,mythendistance,mythenpixelshift,orig)
+function [qout,intout,errout,header,errmult,energyreal,distance] = B1normintpilatus1(fsn1,thicknesses,sens,errorsens,mask,energymeas,energycalib,distminus,pri,mythendistance,mythenpixelshift,fluorcorr,orig)
 
-% [qout,intout,errout,header] = B1normintpilatus1(fsn1,thicknesses,sens,errorsens,mask,energymeas,energycalib,distminus,pri,mythendistance,mythenpixelshift)
+% [qout,intout,errout,header] = B1normintpilatus1(fsn1,thicknesses,sens,errorsens,mask,energymeas,energycalib,distminus,pri,mythendistance,mythenpixelshift,fluorcorr)
 %
 % IN:
 % thicknesses = either one thickness in cm or a structure containing
@@ -37,10 +37,11 @@ function [qout,intout,errout,header,errmult,energyreal,distance] = B1normintpila
 % (and simultanenously changed from spline fit to a linear fit)
 % Edited: 8.5.2009 Andras Wacha (awacha@gmail.com)
 % Edited: 5.6.2009 AW now radint is called with 1-MASK and NOT with MASK
+% Edited: 24.11.2009 UV: Mythen data reduction moved to B1normintallpilatus.m
 
 GCareathreshold=10;
 pixelsize = 0.172; % mm
-dclevel = 15/(619*487); % counts per second to one pixel of the detector, estimation for the dark current
+dclevel = 7/(619*487); % counts per second to one pixel of the detector, estimation for the dark current
 distancefromreferencetosample = 219; % mm, distance from reference sample holder to normal sample holder
 detshift = 10;
 
@@ -59,10 +60,10 @@ if(numel(energycalib)~=numel(energymeas) | numel(energycalib)<2)
    return
 end;    
 
-if(nargin < 12) % Integrate each matrix separately % AW updated parameter list and returned values
-  [qs,ints,errs,areas,As,Aerrs,header,ori,injectionEB] = B1integratepilatus(fsn1,dclevel,sens,errorsens,mask,pri,energymeas,energycalib,distminus,detshift);
+if(nargin < 13) % Integrate each matrix separately % AW updated parameter list and returned values
+  [qs,ints,errs,areas,As,Aerrs,header,ori,injectionEB] = B1integratepilatus(fsn1,dclevel,sens,errorsens,mask,pri,energymeas,energycalib,distminus,detshift,fluorcorr);
 else
-  [qs,ints,errs,areas,As,Aerrs,header,ori,injectionEB] = B1integratepilatus(fsn1,dclevel,sens,errorsens,mask,pri,energymeas,energycalib,distminus,detshift,orig);
+  [qs,ints,errs,areas,As,Aerrs,header,ori,injectionEB] = B1integratepilatus(fsn1,dclevel,sens,errorsens,mask,pri,energymeas,energycalib,distminus,detshift,fluorcorr,orig);
 end;
 
 sizeints = size(ints);
@@ -332,9 +333,9 @@ for(k = 1:sizeints(2))
        writeintfile(qout(:,counter),intout(:,counter),errout(:,counter),header(k));
        write2dintfile(Aout(:,:,counter),Aerrout(:,:,counter),header(k));
 %%% 29.5.2009 Added myhen UV, mythendistance 133.8320, mythenpixelshift = 300.3417
-       [qmythen,tthmythen] = qfrompixelsizeB1(mythendistance-distminus,0.05,header(k).EnergyCalibrated,mythenpixelshift+[0:1279]);
+%       [qmythen,tthmythen] = qfrompixelsizeB1(mythendistance-distminus,0.05,header(k).EnergyCalibrated,mythenpixelshift+[0:1279]);
        %removed ' from tthmythen AW 4.6.2009
-       mythennormint('waxs_',header(k).FSN,qmythen,tthmythen,'angle');
+%       mythennormint('waxs_',header(k).FSN,qmythen,tthmythen,'angle');
        counter = counter + 1;
        if(isstruct(thicknesses)) % If thicknesses are given in a structure
          flagthick = 0; % Resetting flag.
