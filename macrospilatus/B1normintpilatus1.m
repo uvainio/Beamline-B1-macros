@@ -43,7 +43,7 @@ GCareathreshold=10;
 pixelsize = 0.172; % mm
 dclevel = 7/(619*487); % counts per second to one pixel of the detector, estimation for the dark current
 distancefromreferencetosample = 219; % mm, distance from reference sample holder to normal sample holder
-detshift = 10;
+detshift = 50;
 
 if(isstruct(thicknesses)) % This property does not work yet. 
   % Contains or should contain structure variable 'thicknesses':

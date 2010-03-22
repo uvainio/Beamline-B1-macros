@@ -23,9 +23,15 @@ end;
 for(k = 1:sd(2))
   if(strcmp(param(k).Title,samplename)) % & dist/param(k).Dist > 0.95 & dist/param(k).Dist < 1.05)
     if(round(param(k).Energy) == energies2(1))
-      loglog(data(k).q,data(k).Intensity*mult,sprintf('%s',symboll)); hold on
+      handl = loglog(data(k).q,data(k).Intensity*mult,sprintf('%s',symboll)); hold on
+      set(handl,'LineWidth',1);
 %      legend1 = {sprintf('T = %.1f',param(1).Temperature)};
       legend1 = {sprintf('%s',param(k).Title)};
     end;
   end;
 end; hold off
+
+set(gca,'LineWidth',1);
+set(gca,'FontSize',18);
+xlabel(sprintf('q (1/%c)',197));
+ylabel('Intensity (1/cm)');

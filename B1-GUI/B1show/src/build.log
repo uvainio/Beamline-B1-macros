@@ -1,16 +1,1 @@
-License checkout failed.
-License Manager Error -4
-Maximum number of users for Compiler reached. 
-Try again later. 
-To see a list of current users use the lmstat utility or contact your License Administrator.
-
-Troubleshoot this issue by visiting: 
-http://www.mathworks.com/support/lme4b
-
-Diagnostic Information:
-Feature: Compiler 
-License path: C:\Program Files\Matlab\R2007b\bin\win32\license.dat;C:\Program Files\Matlab\R2007b\bin\win32\*.lic; 
-FLEXnet Licensing error: -4,132.
-??? Error using ==> mcc
-Error: Could not check out a Compiler license.
-
+mcc -o 'B1show' -W 'main' -d 'D:\git\Beamline-B1-macros\B1-GUI\B1show\src' -T 'link:exe' -g -w 'enable:specified_file_mismatch' -w 'enable:repeated_file' -w 'enable:switch_ignored' -w 'enable:missing_lib_sentinel' -w 'enable:demo_license' 'D:\git\Beamline-B1-macros\B1-GUI\B1graphics.m' -a 'D:\git\Beamline-B1-macros\B1-GUI\downloaddata.m' -a 'D:\git\Beamline-B1-macros\B1-GUI\imageread.m' -a 'D:\git\Beamline-B1-macros\B1-GUI\readheader.m' -a 'D:\git\Beamline-B1-macros\B1-GUI\B1graphics.fig'  

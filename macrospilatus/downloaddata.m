@@ -6,8 +6,8 @@ function downloaddata(projectname,fsqn)
 %
 % Created 27.5.2009 Ulla Vainio (adapted from code by Sylvio Haas)
 
-CopyToDir = sprintf('D:\\Projekte\\2009\\%s\\data1\\',projectname);
-CopyFromDir = sprintf('/home/b1user/data/2009/%s/',projectname);
+CopyToDir = sprintf('D:\\Projekte\\2010\\%s\\data1\\',projectname);
+CopyFromDir = sprintf('/home/b1user/data/2010/%s/',projectname);
 
 fid = fopen('d:\dontremovethisfile.mat','r');
 if(fid==-1)

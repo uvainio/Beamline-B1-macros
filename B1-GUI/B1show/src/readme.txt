@@ -234,7 +234,7 @@ NOTE: Replace the items enclosed in angle brackets ( < > )
 	* B1show.ctf (Component Technology File archive, 
 	  contains compiled M-code)
 	* B1show.xla (Optionally created and placed in
-	  D:\git\B1-GUI\B1show\src directory by the user)  
+	  D:\git\Beamline-B1-macros\B1-GUI\B1show\src directory by the user)  
 	* MCRInstaller.exe (self-extracting MATLAB Component Runtime
 	  library archive)  	
 

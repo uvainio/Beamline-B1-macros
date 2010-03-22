@@ -1,6 +1,6 @@
-function sumanduniteB1pilatuswaxs(data,param,samplename,uniq,dist,q1,q2,uniqwaxs,q1waxs,q2waxs)
+function sumanduniteB1pilatuswaxs2(data,param,samplename,samplename2,uniq,dist,q1,q2,uniqwaxs,q1waxs,q2waxs)
 
-% function sumanduniteB1pilatuswaxs(data,param,samplename,uniq,dist,q1,q2,uniqwaxs,q1waxs,q2waxs)
+% function sumanduniteB1pilatuswaxs2(data,param,samplename,samplename2,uniq,dist,q1,q2,uniqwaxs,q1waxs,q2waxs)
 %
 % dist = e.g. [3635 935]
 % 
@@ -52,12 +52,21 @@ for(h = 1:length(energies))
          disp(sprintf('Uniting at energy %f.',datasum(k).EnergyCalibrated))
          [f1,multipl] = consaxs([short.q short.Intensity short.Error],[long.q long.Intensity long.Error],uniq, q1,q2,samplename);
          [f,multipl2] = consaxs([waxs.q waxs.Intensity waxs.Error],f1,uniqwaxs,q1waxs,q2waxs,samplename);
+         counterm = 1; f2 = 0;
+         for(mm = 1:length(f)) % removing bad points
+             if(f(mm,2)~= 0)
+                 f2(counterm,1) = f(mm,1);
+                 f2(counterm,2) = f(mm,2);
+                 f2(counterm,3) = f(mm,3);
+                 counterm = counterm + 1;
+             end;
+         end;
          name = sprintf('united%d.dat',min(datasum(k).FSN));
          title(name);
          fid = fopen(name,'w');
          if(fid > -1)
-            for(pp = 1:length(f))
-              fprintf(fid,'%e %e %e\n',f(pp,1),f(pp,2),f(pp,3));
+            for(pp = 1:length(f2))
+              fprintf(fid,'%e %e %e\n',f2(pp,1),f2(pp,2),f2(pp,3));
             end;
             fclose(fid);
             disp(sprintf('Saved summed and united data to file %s',name));

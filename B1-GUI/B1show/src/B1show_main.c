@@ -1,13 +1,15 @@
 /*
  * MATLAB Compiler: 4.7 (R2007b)
- * Date: Fri Nov 27 10:02:21 2009
+ * Date: Thu Mar 11 13:20:34 2010
  * Arguments: "-B" "macro_default" "-o" "B1show" "-W" "main" "-d"
- * "D:\git\B1-GUI\B1show\src" "-T" "link:exe" "-g" "-G" "-w"
+ * "D:\git\Beamline-B1-macros\B1-GUI\B1show\src" "-T" "link:exe" "-g" "-G" "-w"
  * "enable:specified_file_mismatch" "-w" "enable:repeated_file" "-w"
  * "enable:switch_ignored" "-w" "enable:missing_lib_sentinel" "-w"
- * "enable:demo_license" "D:\git\B1-GUI\B1graphics.m" "-a"
- * "D:\git\B1-GUI\downloaddata.m" "-a" "D:\git\B1-GUI\imageread.m" "-a"
- * "D:\git\B1-GUI\readheader.m" "-a" "D:\git\B1-GUI\B1graphics.fig" 
+ * "enable:demo_license" "D:\git\Beamline-B1-macros\B1-GUI\B1graphics.m" "-a"
+ * "D:\git\Beamline-B1-macros\B1-GUI\downloaddata.m" "-a"
+ * "D:\git\Beamline-B1-macros\B1-GUI\imageread.m" "-a"
+ * "D:\git\Beamline-B1-macros\B1-GUI\readheader.m" "-a"
+ * "D:\git\Beamline-B1-macros\B1-GUI\B1graphics.fig" 
  */
 
 #include <stdio.h>

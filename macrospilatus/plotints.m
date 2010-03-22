@@ -32,35 +32,35 @@ for(k = 1:sd(2))
   if(strcmp(param(k).Title,samplename)) % & dist/param(k).Dist > 0.95 & dist/param(k).Dist < 1.05)
     if(round(param(k).Energy) == energies2(1) && flagenergy1 == 0)
       loglog(data(k).q,data(k).Intensity*mult,sprintf('%sb',symboll)); hold on
-      if(flagenergy1 == 0 && counterlegend <= length(energies2)) % any(energies2)
+      if(flagenergy1 == 0)% && counterlegend <= length(energies2)) % any(energies2)
          legend1(counterlegend) = {sprintf('E = %.1f',param(k).Energy)};
          counterlegend = counterlegend + 1;
          flagenergy1 = 1;
       end;
-    elseif(round(param(k).Energy) == energies2(2) && flagenergy1 == 1)
+    elseif(round(param(k).Energy) == energies2(2) && flagenergy1 == 1 && flagenergy2 == 0)
       loglog(data(k).q,data(k).Intensity*mult,sprintf('%sg',symboll)); hold on
-      if(flagenergy2 == 0 && counterlegend <= length(energies2)) % -any(energies2)
+      if(flagenergy2 == 0)% && counterlegend <= length(energies2)) % -any(energies2)
          legend1(counterlegend) = {sprintf('E = %.1f',param(k).Energy)};
          counterlegend = counterlegend + 1;
          flagenergy2 = 1;
       end;
-    elseif(round(param(k).Energy) == energies2(3) && flagenergy2 == 1)
+    elseif(round(param(k).Energy) == energies2(3) && flagenergy2 == 1 && flagenergy3 == 0)
       loglog(data(k).q,data(k).Intensity*mult,sprintf('%sr',symboll)); hold on
-      if(flagenergy3 == 0 && counterlegend <= length(energies2)) % -any(energies2)
+      if(flagenergy3 == 0)% && counterlegend <= length(energies2)) % -any(energies2)
          legend1(counterlegend) = {sprintf('E = %.1f',param(k).Energy)};
          counterlegend = counterlegend + 1;
          flagenergy3 = 1;
       end;
-    elseif(round(param(k).Energy) == energies2(4) && flagenergy3 == 1)
+    elseif(round(param(k).Energy) == energies2(4) && flagenergy3 == 1  && flagenergy4 == 0)
       loglog(data(k).q,data(k).Intensity*mult,sprintf('%sk',symboll)); hold on
-      if(flagenergy4 == 0 && (counterlegend <= length(energies2))) % -any(energies2)
+      if(flagenergy4 == 0)% && (counterlegend <= length(energies2))) % -any(energies2)
          legend1(counterlegend) = {sprintf('E = %.1f',param(k).Energy)};
          counterlegend = counterlegend + 1;
          flagenergy4 = 1;
       end;
-    elseif(round(param(k).Energy) == energies2(5) && flagenergy4 == 1)
+    elseif(round(param(k).Energy) == energies2(5) && flagenergy4 == 1 && flagenergy5 == 0)
       loglog(data(k).q,data(k).Intensity*mult,sprintf('%sm',symboll)); hold on
-      if(flagenergy5 == 0 && (counterlegend <= length(energies2))) % -any(energies2)
+      if(flagenergy5 == 0)% && (counterlegend <= length(energies2))) % -any(energies2)
          legend1(counterlegend) = {sprintf('E = %.1f',param(k).Energy)};
          counterlegend = counterlegend + 1;
          flagenergy5 = 1;
@@ -73,15 +73,26 @@ end;
 for(k = 1:sd(2))
   if(strcmp(param(k).Title,samplename)) % & dist/param(k).Dist > 0.95 & dist/param(k).Dist < 1.05)
     if(round(param(k).Energy) == energies2(1))
-      loglog(data(k).q,data(k).Intensity*mult,sprintf('%sb',symboll)); hold on
+      handl = loglog(data(k).q,data(k).Intensity*mult,sprintf('%sb',symboll)); hold on
+      set(handl,'LineWidth',1);
     elseif(round(param(k).Energy) == energies2(2))
-      loglog(data(k).q,data(k).Intensity*mult,sprintf('%sg',symboll)); hold on
+      handl = loglog(data(k).q,data(k).Intensity*mult,sprintf('%sg',symboll)); hold on
+      set(handl,'LineWidth',1);
     elseif(round(param(k).Energy) == energies2(3))
-      loglog(data(k).q,data(k).Intensity*mult,sprintf('%sr',symboll)); hold on
+      handl = loglog(data(k).q,data(k).Intensity*mult,sprintf('%sr',symboll)); hold on
+      set(handl,'LineWidth',1);
     elseif(round(param(k).Energy) == energies2(4))
-      loglog(data(k).q,data(k).Intensity*mult,sprintf('%sk',symboll)); hold on
+      handl = loglog(data(k).q,data(k).Intensity*mult,sprintf('%sk',symboll)); hold on
+      set(handl,'LineWidth',1);
     elseif(round(param(k).Energy) == energies2(5))
-      loglog(data(k).q,data(k).Intensity*mult,sprintf('%sm',symboll)); hold on
+      handl = loglog(data(k).q,data(k).Intensity*mult,sprintf('%sm',symboll)); hold on
+      set(handl,'LineWidth',1);
     end;
   end;
 end; hold off
+
+set(gca,'LineWidth',1);
+set(gca,'FontSize',18);
+xlabel(sprintf('q (1/%c)',197));
+ylabel('Intensity (1/cm)');
+legend(legend1)

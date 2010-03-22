@@ -6,8 +6,8 @@ function downloaddata(projectname,fsqn)
 %
 % Created 27.5.2009 Ulla Vainio (adapted from code by Sylvio Haas)
 
-CopyToDir = sprintf('D:\\Projekte\\2009\\%s\\data1\\',projectname);
-CopyFromDir = sprintf('/home/b1user/data/2009/%s/',projectname);
+CopyToDir = sprintf('D:\\Projekte\\2010\\%s\\data1\\',projectname);
+CopyFromDir = sprintf('/home/b1user/data/2010/%s/',projectname);
 
 fid = fopen('d:\dontremovethisfile.mat','r');
 if(fid==-1)
@@ -19,6 +19,8 @@ load d:\dontremovethisfile.mat
 
 WinScp = sprintf('D:\\Projekte\\Putty\\PSCP.EXE -scp -pw %s',pilatus);
 WinScp2 = sprintf('D:\\Projekte\\Putty\\PSCP.EXE -scp -pw %s',online);
+
+disp('det@haspp03pilatus')
 
 for i=1:length(fsqn)
    fid = fopen(fullfile(CopyToDir,sprintf('%s.tif',sprintf('%s%05d','org_',fsqn(i)))),'r'); 
