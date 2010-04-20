@@ -1,6 +1,6 @@
-function sumanduniteB1pilatuswaxs2(data,param,samplename,samplename2,uniq,dist,q1,q2,uniqwaxs,q1waxs,q2waxs)
+function sumanduniteB1pilatuswaxs(data,param,samplename,uniq,dist,q1,q2,uniqwaxs,q1waxs,q2waxs,qwaxs1,qwaxs2,flatfield,waxsshift)
 
-% function sumanduniteB1pilatuswaxs2(data,param,samplename,samplename2,uniq,dist,q1,q2,uniqwaxs,q1waxs,q2waxs)
+% function sumanduniteB1pilatuswaxs(data,param,samplename,uniq,dist,q1,q2,uniqwaxs,q1waxs,q2waxs,flatfield,waxsshift)
 %
 % dist = e.g. [3635 935]
 % 
@@ -10,10 +10,12 @@ function sumanduniteB1pilatuswaxs2(data,param,samplename,samplename2,uniq,dist,q
 % 16.5.2009 UV: Added samplename2 in case name in short and long distance
 % measurements was different, put the same name if they were the same
 % Edited: 27.7.2009 UV, added WAXS
+% Edited: 13.4.2010 UV: added flatfield option and possibility to shift the
+% WAXS data by a few pixels using waxsshift
 
 datasum = sumintegratedB1pilatus(data,param,samplename);
 % Load in WAXS data
-[datawaxs,paramwaxs] = readintnormmythen([param(1).FSN:param(end).FSN]);
+[datawaxs,paramwaxs] = readintnormmythen(param(1).FSN:param(end).FSN);
 if(isstruct(datawaxs))
    % Sum waxs data
    datasumwaxs = sumintegratedB1mythen(datawaxs,paramwaxs,samplename);
@@ -36,16 +38,35 @@ bothfound = 0;
 for(h = 1:length(energies))
   for(l = 1:length(temperatures))
   for(k = 1:sd(2)) % Allowing 2 eV mismatch in the short and long distance energies
-    if(strcmp(datasum(k).Title,samplename) && dist(1)/datasum(k).Dist > 0.95 && dist(1)/datasum(k).Dist < 1.05 && datasum(k).EnergyCalibrated./energies(h) > 0.9997 && datasum(k).EnergyCalibrated./energies(h) < 1.0003 && temperatures(l)/datasum(k).Temperature > 0.9 & temperatures(l)/datasum(k).Temperature < 1.1)
+    if(strcmp(datasum(k).Title,samplename) && dist(1)/datasum(k).Dist > 0.93 && dist(1)/datasum(k).Dist < 1.08 && datasum(k).EnergyCalibrated/energies(h) > 0.9997 && datasum(k).EnergyCalibrated/energies(h) < 1.0003 && temperatures(l)/datasum(k).Temperature > 0.9 && temperatures(l)/datasum(k).Temperature < 1.1)
         bothfound = bothfound + 1; % Short distance
         short = struct('q',datasum(k).q,'Intensity',datasum(k).Intensity,'Error',datasum(k).Error,'Temperature',datasum(k).Temperature);
-    elseif(strcmp(datasum(k).Title,samplename)  && dist(2)/datasum(k).Dist > 0.95 && dist(2)/datasum(k).Dist < 1.05 && round(datasum(k).EnergyCalibrated) == round(energies(h)) && temperatures(l)/datasum(k).Temperature > 0.9 && temperatures(l)/datasum(k).Temperature < 1.1)
+    elseif(strcmp(datasum(k).Title,samplename)  && dist(2)/datasum(k).Dist > 0.93 && dist(2)/datasum(k).Dist < 1.08 && round(datasum(k).EnergyCalibrated) == round(energies(h)) && temperatures(l)/datasum(k).Temperature > 0.9 && temperatures(l)/datasum(k).Temperature < 1.1)
         bothfound = bothfound + 1; % long distance
         long = struct('q',datasum(k).q,'Intensity',datasum(k).Intensity,'Error',datasum(k).Error,'Temperature',datasum(k).Temperature);
     end;
     % Find WAXS
-    if(k <= length(datasumwaxs) & strcmp(datasumwaxs(k).Title,samplename) & round(datasumwaxs(k).EnergyCalibrated) == round(energies(h)) & temperatures(l)/datasumwaxs(k).Temperature > 0.9 & temperatures(l)/datasumwaxs(k).Temperature < 1.1)
-        waxs = struct('q',datasumwaxs(k).q,'Intensity',datasumwaxs(k).Intensity,'Error',datasumwaxs(k).Error,'Temperature',datasumwaxs(k).Temperature);
+    if(k <= length(datasumwaxs) && strcmp(datasumwaxs(k).Title,samplename) && round(datasumwaxs(k).EnergyCalibrated) == round(energies(h)) && temperatures(l)/datasumwaxs(k).Temperature > 0.9 && temperatures(l)/datasumwaxs(k).Temperature < 1.1)
+         if(nargin>12)
+             waxstmp = struct('q',datasumwaxs(k).q*waxsshift,'Intensity',datasumwaxs(k).Intensity./flatfield,'Error',datasumwaxs(k).Error,'Temperature',datasumwaxs(k).Temperature);
+             title('WAXS after flatfield correction');
+             plot(waxstmp.q,waxstmp.Intensity);
+             pause
+         else        
+           waxstmp = struct('q',datasumwaxs(k).q,'Intensity',datasumwaxs(k).Intensity,'Error',datasumwaxs(k).Error,'Temperature',datasumwaxs(k).Temperature);
+         end;
+        counterm = 1;
+         for(mm = 1:length(waxstmp.Intensity)) % removing bad points
+             if(waxstmp.Intensity(mm)~= 0)
+                 waxstmp2.q(counterm) = waxstmp.q(mm);
+                 waxstmp2.Intensity(counterm) = waxstmp.Intensity(mm);
+                 waxstmp2.Error(counterm) = waxstmp.Error(mm);
+                 counterm = counterm + 1;
+             end;
+         end;
+         % Unite a few pixels
+        [qbin,intbin,errbin] = tobins(waxstmp2.q',waxstmp2.Intensity',waxstmp2.Error',400,qwaxs1,qwaxs2);
+        waxs = struct('q',qbin,'Intensity',intbin,'Error',errbin);
     end;
     if(bothfound == 2) % Short and long distance found so unite them
       if(long.Temperature./short.Temperature <1.1 || long.Temperature./short.Temperature <0.9)

@@ -24,7 +24,7 @@ function B1graphics(varargin)
 
 % Edit the above text to modify the response to help B1graphics
 
-% Last Modified by GUIDE v2.5 27-Nov-2009 09:58:01
+% Last Modified by GUIDE v2.5 20-Apr-2010 09:20:38
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -62,7 +62,7 @@ guidata(hObject, handles);
 % This sets up the initial plot - only do when we are invisible
 % so window can get raised using B1graphics.
 if strcmp(get(hObject,'Visible'),'off')
-    imagesc(ones([487,619]));
+    imagesc(ones([619,487]));
     axis equal
     axis image
     colorbar
@@ -313,7 +313,7 @@ else
    WinScp = sprintf('D:\\Projekte\\Putty\\PSCP.EXE -scp -pw %s',pilatus);
    fid = fopen(fullfile(fulldirectory,sprintf('%s.tif',sprintf('%s%05d',syntaxbegin,fsqn))),'r'); 
    if fid==-1
-      cmd = sprintf('%s det@haspp03pilatus:/home/det/p2_det/images/%s.tif %s%s.tif',WinScp, ...
+      cmd = sprintf('%s det@haspilatus300k:/home/det/p2_det/images/%s.tif %s%s.tif',WinScp, ...
                sprintf('%s%05d',syntaxbegin,fsqn),fulldirectory,sprintf('%s%05d',syntaxbegin,fsqn));
       dos(cmd);
    else
@@ -429,4 +429,19 @@ function checkbox2_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of checkbox2
 
+
+% --------------------------------------------------------------------
+function uitoggletool5_OnCallback(hObject, eventdata, handles)
+% hObject    handle to uitoggletool5 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+zoom on
+
+
+% --------------------------------------------------------------------
+function uitoggletool5_OffCallback(hObject, eventdata, handles)
+% hObject    handle to uitoggletool5 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+zoom off
 

@@ -33,35 +33,35 @@ for(k = 1:sd(2))
     if(round(param(k).Energy) == energies2(1) && flagenergy1 == 0)
       loglog(data(k).q,data(k).Intensity*mult,sprintf('%sb',symboll)); hold on
       if(flagenergy1 == 0)% && counterlegend <= length(energies2)) % any(energies2)
-         legend1(counterlegend) = {sprintf('E = %.1f',param(k).Energy)};
+         legend1(counterlegend) = {sprintf('E = %.1f',param(k).EnergyCalibrated)};
          counterlegend = counterlegend + 1;
          flagenergy1 = 1;
       end;
     elseif(round(param(k).Energy) == energies2(2) && flagenergy1 == 1 && flagenergy2 == 0)
       loglog(data(k).q,data(k).Intensity*mult,sprintf('%sg',symboll)); hold on
       if(flagenergy2 == 0)% && counterlegend <= length(energies2)) % -any(energies2)
-         legend1(counterlegend) = {sprintf('E = %.1f',param(k).Energy)};
+         legend1(counterlegend) = {sprintf('E = %.1f',param(k).EnergyCalibrated)};
          counterlegend = counterlegend + 1;
          flagenergy2 = 1;
       end;
     elseif(round(param(k).Energy) == energies2(3) && flagenergy2 == 1 && flagenergy3 == 0)
       loglog(data(k).q,data(k).Intensity*mult,sprintf('%sr',symboll)); hold on
       if(flagenergy3 == 0)% && counterlegend <= length(energies2)) % -any(energies2)
-         legend1(counterlegend) = {sprintf('E = %.1f',param(k).Energy)};
+         legend1(counterlegend) = {sprintf('E = %.1f',param(k).EnergyCalibrated)};
          counterlegend = counterlegend + 1;
          flagenergy3 = 1;
       end;
     elseif(round(param(k).Energy) == energies2(4) && flagenergy3 == 1  && flagenergy4 == 0)
       loglog(data(k).q,data(k).Intensity*mult,sprintf('%sk',symboll)); hold on
       if(flagenergy4 == 0)% && (counterlegend <= length(energies2))) % -any(energies2)
-         legend1(counterlegend) = {sprintf('E = %.1f',param(k).Energy)};
+         legend1(counterlegend) = {sprintf('E = %.1f',param(k).EnergyCalibrated)};
          counterlegend = counterlegend + 1;
          flagenergy4 = 1;
       end;
     elseif(round(param(k).Energy) == energies2(5) && flagenergy4 == 1 && flagenergy5 == 0)
       loglog(data(k).q,data(k).Intensity*mult,sprintf('%sm',symboll)); hold on
       if(flagenergy5 == 0)% && (counterlegend <= length(energies2))) % -any(energies2)
-         legend1(counterlegend) = {sprintf('E = %.1f',param(k).Energy)};
+         legend1(counterlegend) = {sprintf('E = %.1f',param(k).EnergyCalibrated)};
          counterlegend = counterlegend + 1;
          flagenergy5 = 1;
       end;

@@ -1,0 +1,20 @@
+function fluorcorr = pilatusfluorescencecorrection(fsn,mask)
+
+% fluorcorr = pilatusfluorescencecorrection(fsn,mask)
+%
+%
+% Created: 27.10.2009 Ulla Vainio
+
+% Integrate over the angle 
+[intensity,error] = integrate1pilatus(A,[56 465],mask,400,420,360);
+
+I3 = trapz(intensity(270:290));
+I2 = trapz(intensity(305:325));
+
+factor = 
+
+A = zeros(619,487);
+
+A(round(619*2/3):end,:) = ones(size(A(round(619*2/3):end,:)))*factor;
+
+fluorcorr = A;

@@ -45,7 +45,7 @@
    </packaging>
    <MATLABPath>
       <Directory>$(MATLABROOT)/toolbox/compiler/deploy</Directory>
-      <Directory>\\win.desy.de\home\b1user\My Documents</Directory>
+      <Directory>$(PROJECTDIR)/</Directory>
       <Directory>\\win.desy.de\home\b1user\My Documents\MATLAB</Directory>
       <Directory>$(MATLABROOT)/toolbox/matlab/general</Directory>
       <Directory>$(MATLABROOT)/toolbox/matlab/ops</Directory>

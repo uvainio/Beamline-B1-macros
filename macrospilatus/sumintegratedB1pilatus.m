@@ -24,7 +24,7 @@ for(h = 1:length(energies))
       for(m = 1:length(dist))
           counter = 1;
           for(k = 1:sd(2)) % first sum
-             if(strcmp(param(k).Title,samplename) & dist(m)/param(k).Dist > 0.95 & dist(m)/param(k).Dist < 1.05 & round(param(k).EnergyCalibrated) == round(energies(h))) % & temperatures(l)==round(param(k).Temperature))
+             if(strcmp(param(k).Title,samplename) & dist(m)/param(k).Dist > 0.92 & dist(m)/param(k).Dist < 1.08 & round(param(k).EnergyCalibrated) == round(energies(h))) % & temperatures(l)==round(param(k).Temperature))
                param(k).FSN
                if(counter == 1) % Create the first structure.
                 sumq = data(k).q;

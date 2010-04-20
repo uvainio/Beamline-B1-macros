@@ -1,4 +1,4 @@
-function legend1 = plotints(data,param,samplename,energies,symboll,mult)
+function [legend1,data1,param1] = plotintsc(data,param,samplename,energies,symboll,mult)
 
 % function legend1 = plotints(data,param,samplename,energies,symboll,mult)
 %
@@ -23,6 +23,7 @@ end;
 for(k = 1:sd(2))
   if(strcmp(param(k).Title,samplename)) % & dist/param(k).Dist > 0.95 & dist/param(k).Dist < 1.05)
     if(round(param(k).Energy) == energies2(1))
+        data1 = data(k); param1 = param(k);
       handl = loglog(data(k).q,data(k).Intensity*mult,sprintf('%s',symboll)); hold on
       set(handl,'LineWidth',1);
 %      legend1 = {sprintf('T = %.1f',param(1).Temperature)};

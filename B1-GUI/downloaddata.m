@@ -20,12 +20,12 @@ load d:\dontremovethisfile.mat
 WinScp = sprintf('D:\\Projekte\\Putty\\PSCP.EXE -scp -pw %s',pilatus);
 WinScp2 = sprintf('D:\\Projekte\\Putty\\PSCP.EXE -scp -pw %s',online);
 
-disp('det@haspp03pilatus')
+disp('det@haspilatus300k')
 
 for i=1:length(fsqn)
    fid = fopen(fullfile(CopyToDir,sprintf('%s.tif',sprintf('%s%05d','org_',fsqn(i)))),'r'); 
    if fid==-1
-      cmd = sprintf('%s det@haspp03pilatus:/home/det/p2_det/images/%s.tif %s%s.tif',WinScp, ...
+      cmd = sprintf('%s det@haspilatus300k:/home/det/p2_det/images/%s.tif %s%s.tif',WinScp, ...
                sprintf('%s%05d','org_',fsqn(i)),CopyToDir,sprintf('%s%05d','org_',fsqn(i)));
       dos(cmd);
    else
