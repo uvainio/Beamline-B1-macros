@@ -15,6 +15,8 @@ function data = mythennormint(prefix,fsns,q,tth,slit)
 % measurement time
 % Edited: 5.1.2010 Ulla Vainio: added flipud to the error. Previously error
 % array was upside down!
+% Edited 1.7.2010 Ulla Vainio: Divided by measurement time, but this is
+% taken already into account in Monitor counts, so this was removed
 
 badpixels = [6 307 308 309 380 410 491 492 493 1257:1:1280];
 
@@ -65,8 +67,8 @@ for(k = 1:length(fsns))
       cor=cor(:); % AW 5.6.2009
       % Normalized now also by measurement time! Monitor is normalized by
       % measurement time
-      data(counter2).Intensity = data(counter2).Intensity.*cor/header.Transm/header.Monitor/header.MeasTime;
-      data(counter2).Error = data(counter2).Error.*cor/header.Transm/header.Monitor/header.MeasTime;
+      data(counter2).Intensity = data(counter2).Intensity.*cor/header.Transm/header.Monitor;
+      data(counter2).Error = data(counter2).Error.*cor/header.Transm/header.Monitor;
       
          fclose(fid);
        dat = [data(counter2).q data(counter2).Intensity data(counter2).Error];

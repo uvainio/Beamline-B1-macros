@@ -8,9 +8,11 @@ function saxswaxstemperature(fsns,samplename,energy)
 %
 % UV 22.5.2009
 
-[datasaxs,paramsaxs] = readintnormpilatus(fsns);
+[datasaxs,paramsaxs] = readbinnedpilatus(fsns);
+%[datasaxs,paramsaxs] = readintnormpilatus(fsns);
 
-[datawaxs,paramwaxs] = readintnormmythen(fsns);
+%[datawaxs,paramwaxs] = readintnormmythen(fsns);
+[datawaxs,paramwaxs] = readflatfieldmythen(fsns);
 
 
 subplot('Position',[0.1 0.55 0.77 0.4])

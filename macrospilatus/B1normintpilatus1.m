@@ -1,8 +1,9 @@
-function [qout,intout,errout,header,errmult,energyreal,distance] = B1normintpilatus1(fsn1,thicknesses,sens,errorsens,mask,energymeas,energycalib,distminus,pri,mythendistance,mythenpixelshift,fluorcorr,orig)
+function [qout,intout,errout,header,errmult,energyreal,distance] = B1normintpilatus1(dirname,fsn1,thicknesses,sens,errorsens,mask,energymeas,energycalib,distminus,pri,mythendistance,mythenpixelshift,fluorcorr,orig)
 
-% [qout,intout,errout,header] = B1normintpilatus1(fsn1,thicknesses,sens,errorsens,mask,energymeas,energycalib,distminus,pri,mythendistance,mythenpixelshift,fluorcorr)
+% [qout,intout,errout,header] = B1normintpilatus1(dirname,fsn1,thicknesses,sens,errorsens,mask,energymeas,energycalib,distminus,pri,mythendistance,mythenpixelshift,fluorcorr)
 %
 % IN:
+% dirname = directory of Pilatus data
 % thicknesses = either one thickness in cm or a structure containing
 % thicknesses of all samples.
 % distminus = sample-to-detector distance difference between PILATUS
@@ -60,10 +61,10 @@ if(numel(energycalib)~=numel(energymeas) | numel(energycalib)<2)
    return
 end;    
 
-if(nargin < 13) % Integrate each matrix separately % AW updated parameter list and returned values
-  [qs,ints,errs,areas,As,Aerrs,header,ori,injectionEB] = B1integratepilatus(fsn1,dclevel,sens,errorsens,mask,pri,energymeas,energycalib,distminus,detshift,fluorcorr);
+if(nargin < 14) % Integrate each matrix separately % AW updated parameter list and returned values
+  [qs,ints,errs,areas,As,Aerrs,header,ori,injectionEB] = B1integratepilatus(dirname,fsn1,dclevel,sens,errorsens,mask,pri,energymeas,energycalib,distminus,detshift,fluorcorr);
 else
-  [qs,ints,errs,areas,As,Aerrs,header,ori,injectionEB] = B1integratepilatus(fsn1,dclevel,sens,errorsens,mask,pri,energymeas,energycalib,distminus,detshift,fluorcorr,orig);
+  [qs,ints,errs,areas,As,Aerrs,header,ori,injectionEB] = B1integratepilatus(dirname,fsn1,dclevel,sens,errorsens,mask,pri,energymeas,energycalib,distminus,detshift,fluorcorr,orig);
 end;
 
 sizeints = size(ints);

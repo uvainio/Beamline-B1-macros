@@ -1,5 +1,5 @@
-function reintegrateB1pilatus(fsn,mask,sddistance,qrange,samplenames)
-% function reintegrateB1pilatus(fsn,mask,sddistance,qrange,samplenames)
+function reintegrateB1pilatusmasking(fsn,mask,sddistance,qrange,samplenames)
+% function reintegrateB1pilatusmasking(fsn,mask,sddistance,qrange,samplenames)
 %
 % Re-integrate 2d scattering patterns
 %
@@ -49,6 +49,7 @@ function reintegrateB1pilatus(fsn,mask,sddistance,qrange,samplenames)
 %     not correct anyway
 % Edited: 13.5.2010 AW: put in safety checks, so the program won't die if
 %     no measurement is found from a given sample or a given distance.
+% Edited: 16.7.2010 UV: Added masking of cosmic rays using median filter
 
 hc = 2*pi*1973.269601; % from qfrompixelsizeB1
 
@@ -154,19 +155,56 @@ for si=1:length(samplenames) % treat each sample one-by-one
        end
        %now we have the q-range in qrange.
        sdqrange=sdqrange(:); %vectorize it
-       % now iterate through 
+       % Load all data and make median to find out cosmic rays
+       disp('Loading 2d data for making a median filter for cosmic rays.');
+       clear fA;
+       clear fAerrs;
+       fcounter = 1;
        for i = 1:numel(sdparams);
            disp(sprintf('Loading 2d data for FSN %d',sdparams(i).FSN));
            [As,Aerrs]=read2dintfilepilatus(sdparams(i).FSN);
+           fA(:,:,fcounter) = As;
+           fAerrs(:,:,fcounter) = Aerrs;
+           fcounter = fcounter + 1;
+       end;
+       sizefA = size(fA);
+       if(sizefA(3)<3)
+           disp('Each sample must have at least three measurements if you want to use the median filter! Stopping!');
+           return;
+       end;
+       % Median of all images
+       medianA = median(fA,3);
+       lll = find(medianA()<0); % Take care of too small count rates
+       medianA(lll) = 1;
+       ratioA = ones(size(medianA));
+       ratioB = ratioA;
+       % now iterate through 
+       for i = 1:numel(sdparams);
+           % Modifying the mask using the median filter
+           ratioA = (fA(:,:,i)-medianA)./medianA;
+           ratioB = fA(:,:,i)./medianA;
+%           imagesc(ratioA); colorbar; pause
+           %imagesc(medianA); pause
+           find(abs(ratioA.*mask) > 50 | ratioB >100)
+           mask2 = mask; % Let's not modify the original mask
+           mask2(find(abs(ratioA.*mask) > 50 | ratioB >100)) = 0;
+           imagesc(fA(:,:,i).*mask2);colorbar;
+           hold on
+           % cover masked area with white (by Andras Wacha)
+           white=ones(size(mask2,1),size(mask2,2),3);
+           h=image(white);
+           set(h,'AlphaData',(1-mask2)*0.70);
+           hold off
+           drawnow
            disp(sprintf('Re-integrating FSN %d (%s)',sdparams(i).FSN,sdparams(i).Title));
-           [q1,I1,err1,area1]=radint(As,...
-                                     Aerrs,...
+           [q1,I1,err1,area1]=radint(fA(:,:,i),...
+                                     fAerrs(:,:,i),...
                                      sdparams(i).EnergyCalibrated,...
                                      sdparams(i).Dist,...
                                      sdparams(i).PixelSize,...
                                      sdparams(i).BeamPosX,...
                                      sdparams(i).BeamPosY,...
-                                     1-mask,sdqrange);
+                                     1-mask2,sdqrange);
            name = sprintf('intbinned%d.dat',sdparams(i).FSN);
            fid = fopen(name,'w');
            if(fid > -1)

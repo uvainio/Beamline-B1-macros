@@ -20,13 +20,19 @@ function mask=makemask2(mask,A,maxvalue)
 %Edited: [21:25].9.2009 by AW. Added "pixel hunting", "forget selection"
 %  and "help, get me out of here" functionality. The auto-unzooming
 %  "feature" was removed.
+%Edited: 11.5.2010 by AW. Added debug messages to various points of the
+%  macro, because of errors. It turned out however, that the errors were
+%  caused by Matlab itself (eg. the plotting did not work correctly).
+%  Restarting Matlab solved the problems.
+
+flagdebug=0; % set this to nonzero to enable debug messages
 
 % this is for callback mechanism. It is a bit tricky, I know. If the first
 % argument of this function (which is called "mask") is a string, that
 % subroutine gets called with the UserData property of the current figure.
 if ischar(mask)
     handles=get(gcf,'UserData');
-    mask=[mask,'(handles)'];
+    mask=[mask,'(handles,flagdebug)'];
     eval(mask);
     return
 end
@@ -268,16 +274,19 @@ set(gcf,'UserData',handles); %"handles" is stored as the UserData field of the c
 % the main loop
 firstdraw=1; % if this is the first time we draw the image.
 while handles.done==0
+    if flagdebug
+       disp('Returned from uiwait')
+    end
     if handles.redrawneeded % if redraw is needed
-        hold off;
+        hold off
         if firstdraw==0
             ax=axis; % save the current zoom
             cla;
         end
         imagesc(log(A));
+        hold on;
         % plot the mask semitransparently
         maskwhite=ones(size(A,1),size(A,2),3);
-        hold on;
         h=imagesc(maskwhite);
         set(h,'AlphaData',(handles.mask==0)*0.7);
         handles.redrawneeded=0; % redraw is not needed, as it is already done.
@@ -286,10 +295,14 @@ while handles.done==0
             axis(ax); % re-zoom to the saved position.
         end
         firstdraw=0;
+        drawnow;
     end
     if handles.pixelhunting
-        dopixelhunt(handles)
+        dopixelhunt(handles,flagdebug)
     else
+       if flagdebug
+          disp('Uiwait...')
+       end
        uiwait % wait for user interaction (pressing toolbar buttons). Execution
               % returns here when uiresume is called (at the end of each callback
               % function)
@@ -305,39 +318,51 @@ return %this is not needed, only for clarity
 
 % here come the callback routines.
 
-function escapeclicked(handles)
+function escapeclicked(handles,flagdebug)
+   if flagdebug
+      disp('escapeclicked')
+   end
    handles.done=1; % signalling an exit to the main loop
    handles.mask=handles.origmask; % reverting to the older version of the mask
    set(gcf,'UserData',handles); %updating handles
    uiresume
    
-function doneclicked(handles) % this is called when the done button is clicked.
-    handles.done=1; % signalling exit to the main loop
-    set(gcf,'UserData',handles);
+function doneclicked(handles,flagdebug) % this is called when the done button is clicked.
+   if flagdebug
+      disp('doneclicked')
+   end
+   handles.done=1; % signalling exit to the main loop
+   set(gcf,'UserData',handles);
    %delete(handles.toolbar); %remove toolbar from figure
    %set(gcf,'UserData',[]); %remove our data
    %mask=handles.mask;
    %return
-    uiresume
+   uiresume
     
-function selectrectangle(handles)
-    title('Select two opposite corners of the rectangle by two mouseclicks!')
-    [gx,gy,gb]=ginput(2); % two mouse clicks
-    % find the real corners of the rectangle
-    x0=max([ceil(min(gx)) 1]);
-    y0=max([ceil(min(gy)) 1]);
-    x1=min([floor(max(gx)) size(handles.mask,2)]);
-    y1=min([floor(max(gy)) size(handles.mask,1)]);
-    %set selection
-    handles.pointstomask=zeros(size(handles.mask));
-    handles.pointstomask(y0:y1,x0:x1)=1;
-    h=line([x0 x1 x1 x0 x0],[y0 y0 y1 y1 y0]); % draw rectangle
-    set(h,'Color','white');
-    title('Now mask/unmask/flip it if you want.');
-    set(gcf,'UserData',handles); % update handles structure.
-    uiresume % return from uiwait in main loop.
+function selectrectangle(handles,flagdebug)
+   if flagdebug
+      disp('selectrectangle')
+   end
+   title('Select two opposite corners of the rectangle by two mouseclicks!')
+   [gx,gy,gb]=ginput(2); % two mouse clicks
+   % find the real corners of the rectangle
+   x0=max([ceil(min(gx)) 1]);
+   y0=max([ceil(min(gy)) 1]);
+   x1=min([floor(max(gx)) size(handles.mask,2)]);
+   y1=min([floor(max(gy)) size(handles.mask,1)]);
+   %set selection
+   handles.pointstomask=zeros(size(handles.mask));
+   handles.pointstomask(y0:y1,x0:x1)=1;
+   h=line([x0 x1 x1 x0 x0],[y0 y0 y1 y1 y0]); % draw rectangle
+   set(h,'Color','white');
+   title('Now mask/unmask/flip it if you want.');
+   set(gcf,'UserData',handles); % update handles structure.
+   uiresume % return from uiwait in main loop.
 
-function selecttriangle(handles) %select a triangle
+function selecttriangle(handles,flagdebug) %select a triangle
+   if flagdebug
+      disp('selecttriangle')
+   end
     title('Select three corners of the triangle!')
     [gx(1),gy(1)]=ginput(1); % corner C
     [gx(2),gy(2)]=ginput(1); % corner A
@@ -382,7 +407,10 @@ function selecttriangle(handles) %select a triangle
     uiresume
 
     
-function selectcircle(handles)
+function selectcircle(handles,flagdebug)
+   if flagdebug
+       disp('selectcircle')
+   end
     title('Select circle center with left button')
     [gx,gy]=ginput(1); %origin
     title('Select circle radius with right button')
@@ -398,18 +426,27 @@ function selectcircle(handles)
     set(gcf,'UserData',handles);
     uiresume
 
-function gopixelhunting(handles)
+function gopixelhunting(handles,flagdebug)
+   if flagdebug
+      disp('gopixelhunting')
+   end
    handles.pixelhunting=1; % start pixel hunting
    set(gcf,'UserData',handles);
    uiresume
    
-function returnfrompixelhunting(handles)
+function returnfrompixelhunting(handles,flagdebug)
+   if flagdebug
+      disp('returnfrompixelhunting')
+   end
    title('');
    handles.pixelhunting=0;
    set(gcf,'UserData',handles);
    uiresume
    
-function dopixelhunt(handles)
+function dopixelhunt(handles,flagdebug)
+   if flagdebug
+      disp('dopixelhunt')
+   end
    title('Select pixels to flip the mask over. Right button to end.')
    [gx,gy,gb]=ginput(1);
    handles=get(gcf,'UserData'); % we need this because returnfrompixelhunting can be called during ginput().
@@ -423,7 +460,10 @@ function dopixelhunt(handles)
    handles.redrawneeded=1;
    set(gcf,'UserData',handles);
    
-function maskit(handles) % mask selected points
+function maskit(handles,flagdebug) % mask selected points
+   if flagdebug
+       disp('maskit')
+   end
     if ~isempty(handles.pointstomask)
         handles.mask=handles.mask & ~handles.pointstomask;
         handles.pointstomask=[];
@@ -434,7 +474,10 @@ function maskit(handles) % mask selected points
     set(gcf,'UserData',handles);
     uiresume
     
-function unmaskit(handles) %unmask selected points
+function unmaskit(handles,flagdebug) %unmask selected points
+   if flagdebug
+       disp('unmaskit')
+   end
     if ~isempty(handles.pointstomask)
         handles.mask=handles.mask | handles.pointstomask;
         handles.pointstomask=[];
@@ -445,7 +488,10 @@ function unmaskit(handles) %unmask selected points
     set(gcf,'UserData',handles);
     uiresume
     
-function flipmask(handles) %flip masked state of selected points
+function flipmask(handles,flagdebug) %flip masked state of selected points
+   if flagdebug
+       disp('flipmask')
+   end
     if ~isempty(handles.pointstomask)
         handles.mask=xor(handles.mask,handles.pointstomask);
         handles.pointstomask=[];
@@ -456,13 +502,19 @@ function flipmask(handles) %flip masked state of selected points
     set(gcf,'UserData',handles);
     uiresume
 
-function invertmask(handles) % invert the whole mask
+function invertmask(handles,flagdebug) % invert the whole mask
+   if flagdebug
+       disp('invertmask')
+   end
     handles.mask=(handles.mask==0);
     handles.redrawneeded=1;
     set(gcf,'UserData',handles);
     uiresume;
 
-function forgetselection(handles) % forget what is selected and redraw
+function forgetselection(handles,flagdebug) % forget what is selected and redraw
+   if flagdebug
+       disp('forgetselection')
+   end
     handles.pointstomask=[];
     handles.redrawneeded=1;
     set(gcf,'UserData',handles);
