@@ -5,6 +5,8 @@ function cor = gasabsorptioncorrectionpilatus(energy,q)
 % Usage: correcteddata = cor.*data;
 % 
 % Created 9.10.2007 UV
+% Edited: 5.10.2010 UV Absorption correction was wrong! Used mu*d*d instead of mu*d in
+% calculation
 
 disp('GAS ABSORPTION CORRECTION USED!!')
 
@@ -18,9 +20,9 @@ lambda = hc/energy;
 tth = 2*asin(q*lambda/4/pi); % 2theta in radians
 
 % How many mm the rays travel in the detector
-dettravel = detthick./cos(tth);
-airtravel = airthick./cos(tth);
-flighttubewindowtravel = flighttubewindowthick./cos(tth);
+dettravel = 1./cos(tth);
+airtravel = 1./cos(tth);
+flighttubewindowtravel = 1./cos(tth);
 
 % How much is the relative absorption of rays at that path?
 % Detector pressure is about 1.2 atm equivalent to about 910 Torr.
@@ -38,10 +40,10 @@ elseif(min(tr(:,1)) > energy)
 else
    tr1 = tr(end,2);
 end;
-mu = -log(tr1); % in 1/mm
+mud = -log(tr1);
 
 % cor1 = (1-exp(-dettravel(1).*mu))./(1-exp(-dettravel.*mu));
-cor1 = 1./(1-exp(-dettravel.*mu));
+cor1 = 1./(1-exp(-dettravel.*mud));
 
 load TransmissionAir760Torr1mm298K.dat
 tr = TransmissionAir760Torr1mm298K;
@@ -52,10 +54,10 @@ elseif(min(tr(:,1)) > energy)
 else
    tr1 = tr(end,2);
 end;
-mu = -log(tr1); % in 1/mm
+mud = -log(tr1); 
 
 % cor2 = exp(-airtravel(1).*mu)./exp(-airtravel.*mu);
-cor2 = 1./exp(-airtravel.*mu);
+cor2 = 1./exp(-airtravel.*mud);
 
 load TransmissionPolyimide1mm.dat
 tr = TransmissionPolyimide1mm;
@@ -66,9 +68,9 @@ elseif(min(tr(:,1)) > energy)
 else
    tr1 = tr(end,2);
 end;
-mu = -log(tr1); % in 1/mm
+mud = -log(tr1); 
 
-cor3 = 1./exp(-flighttubewindowtravel.*mu); 
+cor3 = 1./exp(-flighttubewindowtravel.*mud); 
 
 cor = cor1.*cor2.*cor3;
 

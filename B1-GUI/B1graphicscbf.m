@@ -1,19 +1,19 @@
-function B1graphics(varargin)
-% B1GRAPHICS M-file for B1graphics.fig
-%      B1GRAPHICS, by itself, creates a new B1GRAPHICS or raises the existing
+function B1graphicscbf(varargin)
+% B1GRAPHICSCBF M-file for B1graphicscbf.fig
+%      B1GRAPHICSCBF, by itself, creates a new B1GRAPHICSCBF or raises the existing
 %      singleton*.
 %
-%      H = B1GRAPHICS returns the handle to a new B1GRAPHICS or the handle to
+%      H = B1GRAPHICSCBF returns the handle to a new B1GRAPHICSCBF or the handle to
 %      the existing singleton*.
 %
-%      B1GRAPHICS('CALLBACK',hObject,eventData,handles,...) calls the local
-%      function named CALLBACK in B1GRAPHICS.M with the given input arguments.
+%      B1GRAPHICSCBF('CALLBACK',hObject,eventData,handles,...) calls the local
+%      function named CALLBACK in B1GRAPHICSCBF.M with the given input arguments.
 %
-%      B1GRAPHICS('Property','Value',...) creates a new B1GRAPHICS or raises the
+%      B1GRAPHICSCBF('Property','Value',...) creates a new B1GRAPHICSCBF or raises the
 %      existing singleton*.  Starting from the left, property value pairs are
-%      applied to the GUI before B1graphics_OpeningFcn gets called.  An
+%      applied to the GUI before B1graphicscbf_OpeningFcn gets called.  An
 %      unrecognized property name or invalid value makes property application
-%      stop.  All inputs are passed to B1graphics_OpeningFcn via varargin.
+%      stop.  All inputs are passed to B1graphicscbf_OpeningFcn via varargin.
 %
 %      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
 %      instance to run (singleton)".
@@ -22,16 +22,16 @@ function B1graphics(varargin)
 %
 % Created: 24.11.2009 Ulla Vainio (ulla.vainio@desy.de)
 
-% Edit the above text to modify the response to help B1graphics
+% Edit the above text to modify the response to help B1graphicscbf
 
-% Last Modified by GUIDE v2.5 20-Apr-2010 09:20:38
+% Last Modified by GUIDE v2.5 30-May-2011 14:34:48
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
                    'gui_Singleton',  gui_Singleton, ...
-                   'gui_OpeningFcn', @B1graphics_OpeningFcn, ...
-                   'gui_OutputFcn',  @B1graphics_OutputFcn, ...
+                   'gui_OpeningFcn', @B1graphicscbf_OpeningFcn, ...
+                   'gui_OutputFcn',  @B1graphicscbf_OutputFcn, ...
                    'gui_LayoutFcn',  [] , ...
                    'gui_Callback',   []);
 if nargin && ischar(varargin{1})
@@ -45,22 +45,22 @@ else
 end
 % End initialization code - DO NOT EDIT
 
-% --- Executes just before B1graphics is made visible.
-function B1graphics_OpeningFcn(hObject, eventdata, handles, varargin)
+% --- Executes just before B1graphicscbf is made visible.
+function B1graphicscbf_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-% varargin   command line arguments to B1graphics (see VARARGIN)
+% varargin   command line arguments to B1graphicscbf (see VARARGIN)
 
-% Choose default command line output for B1graphics
+% Choose default command line output for B1graphicscbf
 handles.output = hObject;
 
 % Update handles structure
 guidata(hObject, handles);
 
 % This sets up the initial plot - only do when we are invisible
-% so window can get raised using B1graphics.
+% so window can get raised using B1graphicscbf.
 if strcmp(get(hObject,'Visible'),'off')
     imagesc(ones([619,487]));
     axis equal
@@ -68,13 +68,17 @@ if strcmp(get(hObject,'Visible'),'off')
     colorbar
 end
 
+% Set the year to be current year automatically when opening the window
+nowdate = date();
+set(handles.edit6, 'String',sprintf('D:\\Projekte\\%s\\',nowdate(8:end)));
 
-% UIWAIT makes B1graphics wait for user response (see UIRESUME)
+
+% UIWAIT makes B1graphicscbf wait for user response (see UIRESUME)
 uiwait(handles.figure1);
 
 
 % --- Outputs from this function are returned to the command line.
-function varargout = B1graphics_OutputFcn(hObject, eventdata, handles)
+function varargout = B1graphicscbf_OutputFcn(hObject, eventdata, handles)
 % varargout  cell array for returning output args (see VARARGOUT);
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -301,7 +305,7 @@ axes(handles.axes1);
 cla;
 % Download the data
 if(strcmp(syntaxbegin,'org_'))
-   downloaddata(projectname,fsqn);
+   downloaddatacbf(dirname,subdir,projectname,fsqn);
 else
    fid = fopen('d:\dontremovethisfile.mat','r');
    if(fid==-1)
@@ -313,8 +317,8 @@ else
    WinScp = sprintf('D:\\Projekte\\Putty\\PSCP.EXE -scp -pw %s',pilatus);
    fid = fopen(fullfile(fulldirectory,sprintf('%s.cbf',sprintf('%s%05d',syntaxbegin,fsqn))),'r'); 
    if fid==-1
-      cmd = sprintf('%s det@haspilatus300k:/home/det/p2_det/images/%s.cbf %s%s.cbf',WinScp, ...
-               sprintf('%s%05d',syntaxbegin,fsqn),fulldirectory,sprintf('%s%05d',syntaxbegin,fsqn));
+      cmd = sprintf('%s det@haspilatus300k:/home/det/p2_det/images/%s/%s.cbf %s%s.cbf',WinScp, ...
+               projectname,sprintf('%s%05d',syntaxbegin,fsqn),fulldirectory,sprintf('%s%05d',syntaxbegin,fsqn));
       dos(cmd);
    else
       fclose(fid);

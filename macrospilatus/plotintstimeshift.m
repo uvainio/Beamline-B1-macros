@@ -38,7 +38,7 @@ for(k = 1:sd(2))
             fsn1 = param(k).FSN;
             firstmeas = 1;
         end;
-      loglog(data(k).q,data(k).Intensity*mult^k,sprintf('%s',symboll),'Color',[(counter-1)/counter2 1/counter^2 ((counter2-counter)/counter2)]); hold on
+      loglog(data(k).q,data(k).Intensity*mult,sprintf('%s',symboll),'Color',[(counter-1)/counter2 1/counter^2 ((counter2-counter)/counter2)]); hold on
 %      loglog(data(k).q,data(k).Intensity*mult,sprintf('%s%s',symboll,colors(counter))); hold on
    header = readheader('org_',param(k).FSN,'.header');
    legend1(counter) = {sprintf('FSN %d %d.%d.%d %02d:%02d, T = %.1f ^oC',param(k).FSN,header.Day,header.Month,header.Year,header.Hour,header.Minutes,param(k).Temperature)};

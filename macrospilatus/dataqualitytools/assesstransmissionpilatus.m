@@ -115,7 +115,7 @@ subplot(4,1,1); legend(legend1,'Location','EastOutside');
 axis auto
 hold off
 %ax = axis; axis([minindex-10 maxindex+10 ax(3) ax(4)]);
-title(sprintf('Sample: %s, period: %d.%d. %d:%d - %d.%d. %d:%d',titleofsample,param(1).Day,param(1).Month,param(1).Hour,param(1).Minutes,param(end).Day,param(end).Month,param(end).Hour,param(end).Minutes)); 
+title(sprintf('Sample: %s, period: %02d.%02d. %02d:%d - %02d.%02d. %02d:%02d',titleofsample,param(1).Day,param(1).Month,param(1).Hour,param(1).Minutes,param(end).Day,param(end).Month,param(end).Hour,param(end).Minutes)); 
 subplot(4,1,2); legend(legend2,'Location','EastOutside');
 axis auto
 hold off

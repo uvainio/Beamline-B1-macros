@@ -1,6 +1,6 @@
-function [qs,ints,errs,Areas,As,Aerrs,header,orig,injectionEB] = B1integratepilatus(dirname,fsn1,dclevel,sens,errorsens,mask,pri,energymeas,energycalib,distminus,detshift,fluorcorr,orig,transm)
+function [qs,ints,errs,Areas,As,Aerrs,header,orig,injectionEB] = B1integratepilatus(fsn1,dclevel,sens,errorsens,mask,pri,energymeas,energycalib,distminus,detshift,fluorcorr,orig,transm)
 
-% [ints,errs,header,injectionEB] = B1integratepilatus(dirname,fsn1,dclevel,sens,errorsens,mask,distminus,detshift,pri)
+% [ints,errs,header,injectionEB] = B1integratepilatus(fsn1,dclevel,sens,errorsens,mask,distminus,detshift,pri)
 % 
 %
 % injectionEB is 'y' if injection was between sample measurement and
@@ -31,9 +31,9 @@ distancetoreference = 219;
 HC=12398.419; %Planck's constant times speed of light, eV*Angstroems, NIST 2006
 
 if(nargin < 13) %AW 7->11 as new input arguments were added.
-  [Asub,errAsub,header,injectionEB,orig] = subtractbgpilatus(dirname,fsn1,dclevel,sens,errorsens,pri,mask,fluorcorr);
-else % Special case if theoretical transmission is used
-  [Asub,errAsub,header,injectionEB,orig] = subtractbgpilatus(dirname,fsn1,dclevel,sens,errorsens,pri,mask,fluorcorr,transm);
+  [Asub,errAsub,header,injectionEB,orig] = subtractbgpilatus(fsn1,dclevel,sens,errorsens,pri,mask,fluorcorr);
+else % Special case if origin is used
+  [Asub,errAsub,header,injectionEB,orig] = subtractbgpilatus(fsn1,dclevel,sens,errorsens,pri,mask,fluorcorr,orig);
 end;
 %AW we do not need this, as we will use size(A,3) instead of sizeA(3).
 %sizeA = size(Asub);
@@ -146,7 +146,7 @@ for(l = 1:size(Asub,3))
     disp('Now integrating...');
     tic;
     %AW 5.6.2009 Changed mask -> 1-mask!
-    [qs1,ints1,errs1,Areas1]=radint(As(:,:,l),...
+    [qs1,ints1,errs1,Areas1]=radint3(As(:,:,l),...
                                  Aerrs(:,:,l),...
                                  header(l).EnergyCalibrated,...
                                  header(l).Dist,...

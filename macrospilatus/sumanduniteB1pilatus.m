@@ -29,22 +29,22 @@ for(p = 1:sd(2)) % Search for all different energies
      energies = [energies datasum(p).EnergyCalibrated];
    end;
    if(isempty(find(temperatures==round(datasum(p).Temperature))))
-     temperatures = 24; %[temperatures round(datasum(p).Temperature)];
+     temperatures = [temperatures round(datasum(p).Temperature)];
    end;
 end;
 bothfound = 0;
 for(h = 1:length(energies))
   for(l = 1:length(temperatures))
   for(k = 1:sd(2)) % Allowing 2 eV mismatch in the short and long distance energies
-    if((strcmp(datasum(k).Title,samplename) | strcmp(datasum(k).Title,samplename2)) & dist(1)/datasum(k).Dist > 0.93 & dist(1)/datasum(k).Dist < 1.08 & datasum(k).EnergyCalibrated./energies(h) > 0.9997 & datasum(k).EnergyCalibrated./energies(h) < 1.0003 & temperatures(l)/datasum(k).Temperature > 0.9 & temperatures(l)/datasum(k).Temperature < 1.1)
+    if((strcmp(datasum(k).Title,samplename) | strcmp(datasum(k).Title,samplename2)) & dist(1)/datasum(k).Dist > 0.93 & dist(1)/datasum(k).Dist < 1.08 & datasum(k).EnergyCalibrated./energies(h) > 0.9997 & datasum(k).EnergyCalibrated./energies(h) < 1.0003) % & temperatures(l)/datasum(k).Temperature > 0.9 & temperatures(l)/datasum(k).Temperature < 1.1)
         bothfound = bothfound + 1; % Short distance
         short = struct('q',datasum(k).q,'Intensity',datasum(k).Intensity,'Error',datasum(k).Error,'Temperature',datasum(k).Temperature);
-    elseif((strcmp(datasum(k).Title,samplename) | strcmp(datasum(k).Title,samplename2)) & dist(2)/datasum(k).Dist > 0.93 & dist(2)/datasum(k).Dist < 1.08 & round(datasum(k).EnergyCalibrated) == round(energies(h)) & temperatures(l)/datasum(k).Temperature > 0.9 & temperatures(l)/datasum(k).Temperature < 1.1)
+    elseif((strcmp(datasum(k).Title,samplename) | strcmp(datasum(k).Title,samplename2)) & dist(2)/datasum(k).Dist > 0.93 & dist(2)/datasum(k).Dist < 1.08 & round(datasum(k).EnergyCalibrated) == round(energies(h))) % & temperatures(l)/datasum(k).Temperature > 0.9 & temperatures(l)/datasum(k).Temperature < 1.1)
         bothfound = bothfound + 1; % long distance
         long = struct('q',datasum(k).q,'Intensity',datasum(k).Intensity,'Error',datasum(k).Error,'Temperature',datasum(k).Temperature);
     end;
     if(bothfound == 2) % Short and long distance found so unite them
-      if(long.Temperature./short.Temperature <1.1 | long.Temperature./short.Temperature <0.9)
+      if(long.Temperature/short.Temperature <1.1 | long.Temperature/short.Temperature <0.9) %#ok<BDSCA>
          disp(sprintf('Uniting at energy %f.',datasum(k).EnergyCalibrated))
          [f,multipl] = consaxs([short.q short.Intensity short.Error],[long.q long.Intensity long.Error],uniq, q1,q2,samplename);
          name = sprintf('united%d.dat',min(datasum(k).FSN));

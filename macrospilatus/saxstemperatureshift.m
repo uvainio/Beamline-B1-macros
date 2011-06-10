@@ -1,6 +1,6 @@
-function saxstemperature(fsns,samplename,energy)
+function saxstemperatureshit(fsns,samplename,energy,shift)
 %
-% function saxstemperature(fsns,samplename,energy)
+% function saxstemperatureshit(fsns,samplename,energy,shift)
 %
 % E.g. saxswaxstemperature([15:200])
 % Plots the SAXS data saved into binned files
@@ -11,7 +11,7 @@ function saxstemperature(fsns,samplename,energy)
 [datasaxs,paramsaxs] = readbinnedpilatus(fsns);
 %[datasaxs,paramsaxs] = readintnormpilatus(fsns);
 
-legend1 = plotintstime(datasaxs,paramsaxs,samplename,energy);
+legend1 = plotintstime(datasaxs,paramsaxs,samplename,energy,'-',shift);
 legend(legend1,-1);
 xlabel(sprintf('q (1/%c)',197));
 ylabel('Intensity (1/cm)');

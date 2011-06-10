@@ -9,7 +9,7 @@ function sumandsaveB1waxsflatfield(data,param,samplename,qwaxs1,qwaxs2,flatfield
 datasum = sumintegratedB1mythen(data,param,samplename);
 for(k = 1:length(datasum))
   name = sprintf('summedwaxs%d.dat',min(datasum(k).FSN));
-  datasum(k).Intensity = datasum(k).Intensity; %./flatfield;
+  datasum(k).Intensity = datasum(k).Intensity./flatfield;
   counterm = 1; f2 = 0;
   for(mm = 1:length(datasum(k).Intensity)) % removing bad points
      if(datasum(k).Intensity(mm)~= 0)

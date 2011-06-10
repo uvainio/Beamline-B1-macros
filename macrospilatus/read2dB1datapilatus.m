@@ -1,8 +1,7 @@
-function [A,header,notfound,name] = read2dB1datapilatus(dirname,filename,files,fileend)
+function [A,header,notfound,name] = read2dB1datapilatus(filename,files,fileend)
 
-% function [A,header,notfound] = read2dB1datapilatus(dirname,filename,files,fileend)
+% function [A,header,notfound] = read2dB1datapilatus(filename,files,fileend)
 %
-% dirname   = directory where Pilatus data is, e.g. Z:\\0714Jiang\
 % filename  = beginning of the file, e.g. 'org_'
 % files     = the files , e.g. [714:1:804] will open files with FSN
 %             from 714 to 804
@@ -30,13 +29,27 @@ function [A,header,notfound,name] = read2dB1datapilatus(dirname,filename,files,f
 n1 = 487;
 m1 = 619;
 
+fid = fopen(sprintf('%s\\processing\\settings.txt',pwd()));
+line1 = fgetl(fid);
+fclose(fid);
+if(strcmp('300k',line1))
+    detectortype = 300;
+elseif(strcmp('1M',line1) || strcmp('1m',string(line1)))
+    detectortype = 1000;
+end;
+CopyToDir = sprintf('%s\\data1\\',pwd());
+projectname = CopyToDir(18:(end-7));
 
 nr = size(files);
 % A = zeros(m1,n1,max(nr)); % Initialised to speed up reading.
 
 counter = 1; counternf = 1; notfound = 0;
 for(l = 1:max(nr))
-    name = sprintf('%s\\%s%05d%s',dirname,filename,files(l),fileend);
+   if(detectortype==1000)
+       name = sprintf('Z:\\%s\\%s%05d%s',projectname,filename,files(l),fileend);
+   elseif(detectortype == 300)
+       name = fullfile(CopyToDir,sprintf('%s.%s',sprintf('%s%05d',filename,files(l),fileend)));       
+   end;
     fid = fopen(name,'r');
     nameheader = sprintf('%s%05d.header',filename,files(l));
      if(fid ~= -1)

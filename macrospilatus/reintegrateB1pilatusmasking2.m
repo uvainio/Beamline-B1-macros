@@ -1,5 +1,5 @@
-function reintegrateB1pilatusmasking(fsn,mask,sddistance,qrange,samplenames)
-% function reintegrateB1pilatusmasking(fsn,mask,sddistance,qrange,samplenames)
+function reintegrateB1pilatusmasking2(fsn,mask,sddistance,qrange,samplenames)
+% function reintegrateB1pilatusmasking2(fsn,mask,sddistance,qrange,samplenames)
 %
 % Re-integrate 2d scattering patterns
 %
@@ -53,7 +53,7 @@ function reintegrateB1pilatusmasking(fsn,mask,sddistance,qrange,samplenames)
 
 hc = 2*pi*1973.269601; % from qfrompixelsizeB1
 
-limitmask = 30;
+masklimit = 25;
 fsn=fsn(:);
 
 if nargin<3 % if sddistance was not supplied, set it to [], which activates
@@ -164,34 +164,13 @@ for si=1:length(samplenames) % treat each sample one-by-one
        for i = 1:numel(sdparams);
            disp(sprintf('Loading 2d data for FSN %d',sdparams(i).FSN));
            [As,Aerrs]=read2dintfilepilatus(sdparams(i).FSN);
-           fA(:,:,fcounter) = As;
-           fAerrs(:,:,fcounter) = Aerrs;
+           fA = As;
+           fAerrs = Aerrs;
            fcounter = fcounter + 1;
-       end;
-       sizefA = size(fA);
-       if(sizefA(3)<3)
-           disp('Each sample must have at least three measurements if you want to use the median filter! Stopping!');
-           return;
-       end;
-       % Median of all images
-       medianA = median(fA,3);
-%       lll = find(medianA()<0); % Take care of too small count rates
-%       medianA(lll) = 1;
-%       ratioA = ones(size(medianA));
-%       ratioB = ratioA;
-       % now iterate through 
-       for i = 1:numel(sdparams);
-           % Modifying the mask using the median filter
-%           ratioA = (fA(:,:,i)-medianA)./medianA;
-%           ratioB = (medianA-fA(:,:,i))./medianA;
-%           imagesc(ratioA); colorbar; pause
-%           imagesc(medianA.*mask); pause
-%          lll = find(abs(ratioA.*mask) > limitmask | abs(ratioB.*mask) >limitmask)
-           lll = find(fA(:,:,i)>1.4*max(max(medianA.*mask)) | fA(:,:,i)<-10*abs(min(min(medianA.*mask))))
-           mask2 = mask; % Let's not modify the original mask
-           mask2(lll) = 0;
-%           mask2(find(fA(:,:,i)>50)) = 0; % SPECIAL
-           imagesc(fA(:,:,i).*mask2);colorbar;
+                      mask2 = mask; % Let's not modify the original mask
+%           mask2(find(abs(ratioA.*mask) > limitmask | ratioB >limitmask)) = 0;
+           mask2(find(fA>masklimit)) = 0; % SPECIAL
+           imagesc(fA.*mask2);colorbar;
            hold on
            % cover masked area with white (by Andras Wacha)
            white=ones(size(mask2,1),size(mask2,2),3);
@@ -200,8 +179,8 @@ for si=1:length(samplenames) % treat each sample one-by-one
            hold off
            drawnow
            disp(sprintf('Re-integrating FSN %d (%s)',sdparams(i).FSN,sdparams(i).Title));
-           [q1,I1,err1,area1]=radint(fA(:,:,i),...
-                                     fAerrs(:,:,i),...
+           [q1,I1,err1,area1]=radint(fA,...
+                                     fAerrs,...
                                      sdparams(i).EnergyCalibrated,...
                                      sdparams(i).Dist,...
                                      sdparams(i).PixelSize,...
@@ -219,8 +198,7 @@ for si=1:length(samplenames) % treat each sample one-by-one
            else
                  disp(sprintf('Unable to save data to file %s',name));
            end;
-        
-       end % i=1:numel(sdparams)
+       end;
    end % for dist...
 end % for samplename
 

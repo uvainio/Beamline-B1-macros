@@ -1,17 +1,30 @@
-function downloaddata(projectname,fsqn,detector)
+function downloaddata(projectname,fsqn)
 
-% function downloaddata(projectname,fsqn,detector)
+% function downloaddata(projectname,fsqn)
 %
-% With Pilatus 1M:
-% e.g. downloaddata('0522Mattern',[200:300],'1M');
-% Or with Pilatus 300k:
-% e.g. downloaddata('0522Mattern',[200:300]);
+% downloaddata('0522Mattern',[200:300]);
 %
 % Created 27.5.2009 Ulla Vainio (adapted from code by Sylvio Haas)
 % Edited: 13.7.2010 Ulla Vainio -- added Pilatus 1M
+% Edited: 31.5.2011 Ulla Vainio -- combined to work with 300k and 1M
 
-CopyToDir = sprintf('D:\\Projekte\\2010\\%s\\data1\\',projectname);
-CopyFromDir = sprintf('/home/b1user/data/2010/%s/',projectname);
+CopyToDir = sprintf('%s\\data1\\',pwd());
+nowdate = date();
+CopyFromDir = sprintf('/home/b1user/data/%s/%s/',nowdate(8:end),projectname);
+
+% This settings file is required in every project in the subdirectory 'processing'
+fid = fopen(sprintf('%s\\processing\\settings.txt',pwd()));
+if(fid==-1)
+    disp('File settings.txt does not exist! It contains information on which detector is used. Stopping.');
+    return;
+end;
+line1 = fgetl(fid);
+fclose(fid);
+if(strcmp('300k',line1))
+    detectortype = 300;
+elseif(strcmp('1M',line1) || strcmp('1m',string(line1)))
+    detectortype = 1000;
+end;
 
 fid = fopen('d:\dontremovethisfile.mat','r');
 if(fid==-1)
@@ -25,26 +38,27 @@ WinScp = sprintf('D:\\Projekte\\Putty\\PSCP.EXE -scp -pw %s',pilatus);
 WinScp2 = sprintf('D:\\Projekte\\Putty\\PSCP.EXE -scp -pw %s',online);
 
 for i=1:length(fsqn)
-    if(nargin<3) % Only for 300k, for 1M we don't need to download the data because it is on a network directory
-       fid = fopen(fullfile(CopyToDir,sprintf('%s.tif',sprintf('%s%05d','org_',fsqn(i)))),'r'); 
-       if fid==-1
-            cmd = sprintf('%s det@haspilatus300k:/home/det/p2_det/images/%s.tif %s%s.tif',WinScp, ...
-               sprintf('%s%05d','org_',fsqn(i)),CopyToDir,sprintf('%s%05d','org_',fsqn(i)));
+    % Download only 300k files, not 1M (they are too big)
+    if(detectortype == 300)
+        fid = fopen(fullfile(CopyToDir,sprintf('%s.cbf',sprintf('%s%05d','org_',fsqn(i)))),'r');
+        if fid==-1
+            cmd = sprintf('%s det@haspilatus300k:/home/det/p2_det/images/%s/%s.cbf %s%s.cbf',WinScp, ...
+                projectname,sprintf('%s%05d','org_',fsqn(i)),CopyToDir,sprintf('%s%05d','org_',fsqn(i)));
             dos(cmd);
-       else
-         fclose(fid);
-       end;
+        else
+            fclose(fid);
+        end
     end;
-    %if(nargin==3)
-    %   fid = fopen(fullfile(CopyToDir,sprintf('%s.cbf',sprintf('%s%05d','org_',fsqn(i)))),'r'); 
-    %   if(fid==-1 && strcmp(detector,'1M'))
-    %     cmd = sprintf('%s det@haspilatus1m:/home/det/p2_det/images/0714Jiang/%s.cbf %s%s.cbf',WinScp, ...
-    %           sprintf('%s%05d','org_',fsqn(i)),CopyToDir,sprintf('%s%05d','org_',fsqn(i)));
-    %     dos(cmd);           
-    %   else
-    %     fclose(fid);
-    %   end;
-    %end;
+% TIF, obsolete
+%    fid = fopen(fullfile(CopyToDir,sprintf('%s.tif',sprintf('%s%05d','org_',fsqn(i)))),'r'); 
+%       if fid==-1
+%            cmd = sprintf('%s det@haspilatus300k:/home/det/p2_det/images/%s.tif %s%s.tif',WinScp, ...
+%               sprintf('%s%05d','org_',fsqn(i)),CopyToDir,sprintf('%s%05d','org_',fsqn(i)));
+%            dos(cmd);
+%       else
+%         fclose(fid);
+%       end;
+%    end;
    
    fid = fopen(fullfile(CopyToDir,sprintf('%s.header',sprintf('%s%05d','org_',fsqn(i)))),'r'); 
     if fid==-1

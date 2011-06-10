@@ -12,7 +12,11 @@ for(p = 1:sd(2)) % Search for all different energies
      energies = [energies param(p).EnergyCalibrated];
    end;
    if(isempty(find(temperatures==round(param(p).Temperature))) & strcmp(param(p).Title,samplename))
-     temperatures = 24; %[temperatures round(param(p).Temperature)];
+       if(isempty(temperatures))
+           temperatures = [temperatures round(param(p).Temperature)];
+       elseif(temperatures(1)/round(param(p).Temperature)<0.9 | temperatures(1)/round(param(p).Temperature)>1.1)
+               temperatures = [temperatures round(param(p).Temperature)];
+       end;
    end;
 end;
 
@@ -22,7 +26,7 @@ for(h = 1:length(energies))
    for(l = 1:length(temperatures))
           counter = 1;
           for(k = 1:sd(2)) % first sum
-             if(strcmp(param(k).Title,samplename) & round(param(k).EnergyCalibrated) == round(energies(h))) % & temperatures(l)==round(param(k).Temperature))
+             if(strcmp(param(k).Title,samplename) && round(param(k).EnergyCalibrated) == round(energies(h)) && temperatures(l)/param(k).Temperature > 0.9 && temperatures(l)/param(k).Temperature < 1.1)
                if(counter == 1) % Create the first structure.
                 sumq = data(k).q;
                 sumints = data(k).Intensity/max(data(k).Intensity);

@@ -1,9 +1,9 @@
-function sumanduniteB1pilatuswaxs(data,param,samplename,uniq,dist,q1,q2,uniqwaxs,q1waxs,q2waxs,qwaxs1,qwaxs2,bins,flatfield,waxsshift)
+function sumanduniteB1pilatuswaxs(data,param,samplename,uniq,dist,q1,q2,uniqwaxs,q1waxs,q2waxs,qwaxs1,qwaxs2,bins,flatfield,waxsshift,fsnsmythen)
 
-% function sumanduniteB1pilatuswaxs(data,param,samplename,uniq,dist,q1,q2,uniqwaxs,q1waxs,q2waxs,flatfield,waxsshift)
+% function sumanduniteB1pilatuswaxs(data,param,samplename,uniq,dist,q1,q2,uniqwaxs,q1waxs,q2waxs,flatfield,waxsshift,fsnsmythen)
 %
 % dist = e.g. [3635 935]
-% 
+% fsnsmythen = optional
 %
 % Created 7.11.2007
 % Added saving of only summed files, if one distance is missing.
@@ -15,7 +15,15 @@ function sumanduniteB1pilatuswaxs(data,param,samplename,uniq,dist,q1,q2,uniqwaxs
 
 datasum = sumintegratedB1pilatus(data,param,samplename);
 % Load in WAXS data
-[datawaxs,paramwaxs] = readintnormmythen(param(1).FSN:param(end).FSN);
+fsns = [];
+for(k = 1:length(param))
+    fsns(k) = param(k).FSN;
+end;
+if(nargin>15)
+    [datawaxs,paramwaxs] = readintnormmythen(fsnsmythen);
+else
+    [datawaxs,paramwaxs] = readintnormmythen(fsns);
+end;
 if(isstruct(datawaxs))
    % Sum waxs data
    datasumwaxs = sumintegratedB1mythen(datawaxs,paramwaxs,samplename);

@@ -1,6 +1,6 @@
-function [Asub,errAsub,header,injectionEB,orig] = subtractbgpilatus(dirname,fsn1,dclevel,sens,senserr,pri,mask,fluorcorr,transm)
+function [Asub,errAsub,header,injectionEB,orig] = subtractbgpilatus(fsn1,dclevel,sens,senserr,pri,mask,fluorcorr,origs)
 
-% function [Asub,errAsub,header] = subtractbgpilatus(dirname,fsn1,dclevel,sens,senserr,pri,mask,fluorcorr,transm)
+% function [Asub,errAsub,header] = subtractbgpilatus(fsn1,dclevel,sens,senserr,pri,mask,fluorcorr,transm)
 %
 % Subtracts from the 2D SAXS measurement of the sample a dark current and
 % the empty beam measurement and normalizes the measurement with
@@ -9,7 +9,6 @@ function [Asub,errAsub,header,injectionEB,orig] = subtractbgpilatus(dirname,fsn1
 % anode of the detector) and by the sensitivity of the detector.
 %
 % IN:
-% dirname = directory for Pilatus data
 % fsn1 = FSN(s) of the sample measurement(s), e.g. [256:500]
 % fsndc = FSN(s) of dark current measurement(s)
 % sens = sensitivity matrix of the detector (from makesensitivity.m)
@@ -29,7 +28,7 @@ function [Asub,errAsub,header,injectionEB,orig] = subtractbgpilatus(dirname,fsn1
 % Edited 18.5.2009 UV, fixed origin
 
 % Read in samples
-[A1,header1] = read2dB1datapilatus(dirname,'org_',fsn1,'.cbf');
+[A1,header1] = read2dB1datapilatus('org_',fsn1,'.cbf');
 sizeA1 = size(A1);
 if(numel(sizeA1)<3)
     sizeA1(3) = 1; % To recover from only one FSN
@@ -48,7 +47,7 @@ if(noemptys == 0)% In case background subtraction is not possible
     return;
 end;
 
-[Abg,headerbg,notfound] = read2dB1datapilatus(dirname,'org_',FSNempty(noemptys),'.cbf');
+[Abg,headerbg,notfound] = read2dB1datapilatus('org_',FSNempty(noemptys),'.cbf');
 sizebg = size(Abg);
 if(numel(sizebg)<3)
     sizebg(3) = 1; % To recover from only one FSN
@@ -63,7 +62,11 @@ end;
 % Subtracting dark current and normalising
 counter = 1;
 for(k = 1:sizeA1(3))
-   orig(:,k) = getorizoomed(A1(:,:,k),pri); % Determine the center of the beam
+    if(nargin < 9)
+        orig(:,k) = getorizoomed(A1(:,:,k),pri); % Determine the center of the beam
+    else
+        orig(:,k) = origs;
+    end;
    header1(k).Anode = sum(sum(A1(:,:,k).*mask)); % Added 18.5.2009 UV
 
    if(FSNempty(k)~=0)
@@ -72,11 +75,11 @@ for(k = 1:sizeA1(3))
      elseif(getfield(headerbg(counter),'FSN')==getfield(headerbg(counter-1),'FSN'))
         Abg(:,:,counter) = Abg(:,:,counter-1); Abgerr(:,:,counter) = Abgerr(:,:,counter-1);
      end;
-     if(nargin < 9) % Normal case
+     %if(nargin < 9) % Normal case
         [A2(:,:,counter),A2err(:,:,counter)] = subdcpilatus(A1(:,:,k)-fluorcorr,header1(k),1,sens,senserr,dclevel);
-     else % in case theoretical transmission is used
-        [A2(:,:,counter),A2err(:,:,counter)] = subdcpilatus(A1(:,:,k),header1(k),1,sens,senserr,dclevel,transm);
-     end;
+     %else % in case theoretical transmission is used, deactivated by Ulla Vainio 2.3.2011
+     %   [A2(:,:,counter),A2err(:,:,counter)] = subdcpilatus(A1(:,:,k),header1(k),1,sens,senserr,dclevel,transm);
+     %end;
      header2(counter) = header1(k);
      counter = counter + 1;
    end;

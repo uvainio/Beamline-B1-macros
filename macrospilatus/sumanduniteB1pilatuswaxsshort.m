@@ -31,19 +31,19 @@ for(p = 1:sd(2)) % Search for all different energies
      energies = [energies datasum(p).EnergyCalibrated];
    end;
    if(isempty(find(temperatures==round(datasum(p).Temperature), 1)))
-     temperatures = 24; %[temperatures round(datasum(p).Temperature)];
+     temperatures = [temperatures round(datasum(p).Temperature)];
    end;
 end;
-bothfound = 0;
+shortfound = 0;
 for(h = 1:length(energies))
   for(l = 1:length(temperatures))
   for(k = 1:sd(2)) % Allowing 2 eV mismatch in the short and long distance energies
-    if(strcmp(datasum(k).Title,samplename) && dist(1)/datasum(k).Dist > 0.93 && dist(1)/datasum(k).Dist < 1.08 && datasum(k).EnergyCalibrated/energies(h) > 0.9997 && datasum(k).EnergyCalibrated/energies(h) < 1.0003 && temperatures(l)/datasum(k).Temperature > 0.9 && temperatures(l)/datasum(k).Temperature < 1.1)
+    if(strcmp(datasum(k).Title,samplename) && dist(1)/datasum(k).Dist > 0.93 && dist(1)/datasum(k).Dist < 1.08 && datasum(k).EnergyCalibrated/energies(h) > 0.9997 && datasum(k).EnergyCalibrated/energies(h) < 1.0003 && temperatures(l)/datasum(k).Temperature > 0.95 && temperatures(l)/datasum(k).Temperature < 1.05)
         shortfound = 1;
         short = struct('q',datasum(k).q,'Intensity',datasum(k).Intensity,'Error',datasum(k).Error,'Temperature',datasum(k).Temperature);
     end;
     % Find WAXS
-    if(k <= length(datasumwaxs) && strcmp(datasumwaxs(k).Title,samplename) && round(datasumwaxs(k).EnergyCalibrated) == round(energies(h)) && temperatures(l)/datasumwaxs(k).Temperature > 0.9 && temperatures(l)/datasumwaxs(k).Temperature < 1.1)
+    if(k <= length(datasumwaxs) && strcmp(datasumwaxs(k).Title,samplename) && round(datasumwaxs(k).EnergyCalibrated) == round(energies(h)) && temperatures(l)/datasumwaxs(k).Temperature > 0.95 && temperatures(l)/datasumwaxs(k).Temperature < 1.05)
          if(nargin>12)
              waxstmp = struct('q',datasumwaxs(k).q*waxsshift,'Intensity',datasumwaxs(k).Intensity./flatfield,'Error',datasumwaxs(k).Error,'Temperature',datasumwaxs(k).Temperature);
              title('WAXS after flatfield correction');
@@ -62,7 +62,7 @@ for(h = 1:length(energies))
              end;
          end;
          % Unite a few pixels
-        [qbin,intbin,errbin] = tobins(waxstmp2.q',waxstmp2.Intensity',waxstmp2.Error',400,qwaxs1,qwaxs2);
+        [qbin,intbin,errbin] = tobins(waxstmp2.q',waxstmp2.Intensity',waxstmp2.Error',300,qwaxs1,qwaxs2);
         waxs = struct('q',qbin,'Intensity',intbin,'Error',errbin);
     end;
     if(shortfound == 1) % Short and long distance found so unite them
@@ -110,7 +110,7 @@ for(h = 1:length(energies))
         break; % Break only the inner loop
     end;
   end;
-    bothfound = 0; % Reset after each energy
+    shortfound = 0; % Reset after each energy
 end;
-  bothfound = 0; % Reset after each energy
+  shortfound = 0; % Reset after each energy
 end;

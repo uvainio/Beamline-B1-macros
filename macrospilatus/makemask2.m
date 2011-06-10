@@ -44,6 +44,27 @@ end
 A(A<=0)=min(min(A(A>0))); % remove zeroes. After this it is safe to take log(A)
 
 % these are simply icon bitmaps. Skip these...
+
+polyicon=[     1     1     1     1     1     0     1     1     1     1     1     1     1     1     1     1;...
+     1     1     1     1     0     0     1     1     1     1     1     1     1     1     1     1;...
+     1     1     1     1     0     1     0     1     1     1     1     1     1     1     1     1;...
+     1     1     1     0     1     1     0     1     1     1     1     1     1     1     1     1;...
+     1     1     0     1     1     1     1     0     1     1     1     1     0     1     1     1;...
+     1     1     0     1     1     1     1     0     1     1     0     0     0     1     1     1;...
+     1     0     1     1     1     1     1     1     0     0     1     1     0     1     1     1;...
+     1     0     1     1     1     1     1     1     0     1     1     1     0     1     1     1;...
+     1     0     1     1     1     1     1     1     1     1     1     1     0     1     1     1;...
+     1     0     1     1     0     1     1     1     1     1     1     1     0     1     1     1;...
+     1     0     1     0     0     1     1     1     1     1     1     1     0     1     1     1;...
+     1     0     0     1     0     1     1     1     1     1     1     1     0     1     1     1;...
+     1     0     0     1     1     0     1     1     1     1     1     1     0     1     1     1;...
+     1     0     1     1     1     0     0     0     0     0     0     0     0     1     1     1;...
+     1     1     1     1     1     1     1     1     1     1     1     1     1     1     1     1;...
+     1     1     1     1     1     1     1     1     1     1     1     1     1     1     1     1];
+polyicon(:,:,2)=polyicon(:,:,1);
+polyicon(:,:,3)=polyicon(:,:,1);
+
+
 forgeticon=[
          1     1     1     1     1     1     1     1     1     1     1     1     1     1     1     0;...
      1     1     1     1     1     0     0     1     1     1     1     0     0     1     0     1;...
@@ -254,6 +275,7 @@ handles.toolbar=uitoolbar();
 handles.rectangletool=uipushtool(handles.toolbar,'CData',rectangleicon,'TooltipString','Select rectangle','ClickedCallback','makemask2(''selectrectangle'');');
 handles.triangletool=uipushtool(handles.toolbar,'CData',triangleicon,'TooltipString','Select triangle','ClickedCallback','makemask2(''selecttriangle'');');
 handles.circletool=uipushtool(handles.toolbar,'CData',circleicon,'TooltipString','Select circle','ClickedCallback','makemask2(''selectcircle'');');
+handles.polytool=uipushtool(handles.toolbar,'CData',polyicon,'TooltipString','Select polygon','ClickedCallback','makemask2(''selectpoly'');');
 handles.pixelhunttool=uipushtool(handles.toolbar,'Cdata',pixelhunticon,'TooltipString','Pixel hunting','ClickedCallback','makemask2(''gopixelhunting'');');
 handles.inverttool=uipushtool(handles.toolbar,'CData',invertmaskicon,'TooltipString','Invert mask','Separator','on','ClickedCallback','makemask2(''invertmask'');');
 handles.masktool=uipushtool(handles.toolbar,'CData',maskicon,'TooltipString','Mask area','Separator','on','ClickedCallback','makemask2(''maskit'');');
@@ -262,6 +284,7 @@ handles.flipmasktool=uipushtool(handles.toolbar,'CData',flipmaskicon,'TooltipStr
 handles.forgettool=uipushtool(handles.toolbar,'CData',forgeticon,'TooltipString','Forget selection and redraw','ClickedCallback','makemask2(''forgetselection'');');
 handles.donetool=uipushtool(handles.toolbar,'CData',doneicon,'TooltipString','Done','Separator','on','UserData',0,'ClickedCallback','makemask2(''doneclicked'');');
 handles.escapetool=uipushtool(handles.toolbar,'CData',escapeicon,'TooltipString','Get me out of here!','Separator','on','UserData',0,'ClickedCallback','makemask2(''escapeclicked'');');
+
 
 handles.redrawneeded=1; % this signals if redraw is needed in the main loop
 handles.mask=mask; %the mask
@@ -359,6 +382,39 @@ function selectrectangle(handles,flagdebug)
    set(gcf,'UserData',handles); % update handles structure.
    uiresume % return from uiwait in main loop.
 
+function selectpoly(handles,flagdebug)
+   if flagdebug
+      disp('selectrectangle')
+   end
+   title({'Select corners of the polygon by left clicks.';'Finish with right click (poly will be closed automatically).'})
+   x=[];
+   y=[];
+   [gx,gy,gb]=ginput(1);
+   while gb==1;
+       x(end+1)=gx;
+       y(end+1)=gy;
+       h=plot([x(end)],[y(end)],'o');
+       set(h,'MarkerFaceColor','white')
+       if numel(x)>1
+           h=line([x(end-1) x(end)],[y(end-1) y(end)]); % draw line segment
+           set(h,'Color','white');
+       end
+       [gx,gy,gb]=ginput(1); % two mouse clicks
+   end;
+   if numel(x)<3;
+       title('Next time, please select three or more points!');
+       uiresume
+       return
+   end
+   h=line([x(end) x(1)],[y(end) y(1)]); % draw line segment
+   set(h,'Color','white');
+   title('Calculating inside points. This may take awhile. Please be patient...')
+   handles.pointstomask=pnpoly(zeros(size(handles.mask)),x,y);
+   title('Now mask/unmask/flip it if you want.');
+   set(gcf,'UserData',handles); % update handles structure.
+   uiresume % return from uiwait in main loop.
+   
+   
 function selecttriangle(handles,flagdebug) %select a triangle
    if flagdebug
       disp('selecttriangle')

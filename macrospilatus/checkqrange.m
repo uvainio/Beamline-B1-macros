@@ -14,16 +14,17 @@ function qtheor = checkqrange(energy,tubes,bsR)
 %
 % Created 24.9.2008 UV
 
+shiftd = 48.5;
 if(tubes == 0)
-    distance = 935;
+    distance = 935-shiftd;
 elseif(tubes == 1)
-    distance = 1384;
+    distance = 1384-shiftd;
 elseif(tubes == 2)
-    distance = 1835;
+    distance = 1835-shiftd;
 elseif(tubes == 3)
-    distance = 2735; 
+    distance = 2735-shiftd; 
 elseif(tubes == 4)
-    distance = 3635;
+    distance = 3635-shiftd;
 else
     disp('Parameter "tubes" does not correspond to any available distance (0 - 4).')
     return

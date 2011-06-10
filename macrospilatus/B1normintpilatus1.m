@@ -1,9 +1,8 @@
-function [qout,intout,errout,header,errmult,energyreal,distance] = B1normintpilatus1(dirname,fsn1,thicknesses,sens,errorsens,mask,energymeas,energycalib,distminus,pri,mythendistance,mythenpixelshift,fluorcorr,orig)
+function [qout,intout,errout,header,errmult,energyreal,distance] = B1normintpilatus1(fsn1,thicknesses,sens,errorsens,mask,energymeas,energycalib,distminus,pri,mythendistance,mythenpixelshift,fluorcorr,orig)
 
-% [qout,intout,errout,header] = B1normintpilatus1(dirname,fsn1,thicknesses,sens,errorsens,mask,energymeas,energycalib,distminus,pri,mythendistance,mythenpixelshift,fluorcorr)
+% [qout,intout,errout,header] = B1normintpilatus1(fsn1,thicknesses,sens,errorsens,mask,energymeas,energycalib,distminus,pri,mythendistance,mythenpixelshift,fluorcorr)
 %
 % IN:
-% dirname = directory of Pilatus data
 % thicknesses = either one thickness in cm or a structure containing
 % thicknesses of all samples.
 % distminus = sample-to-detector distance difference between PILATUS
@@ -39,14 +38,18 @@ function [qout,intout,errout,header,errmult,energyreal,distance] = B1normintpila
 % Edited: 8.5.2009 Andras Wacha (awacha@gmail.com)
 % Edited: 5.6.2009 AW now radint is called with 1-MASK and NOT with MASK
 % Edited: 24.11.2009 UV: Mythen data reduction moved to B1normintallpilatus.m
+% Edited: 21.10.2010 AW: radint3 is used instead of radint, which is now
+% obsolete.
 
 GCareathreshold=10;
 pixelsize = 0.172; % mm
 dclevel = 7/(619*487); % counts per second to one pixel of the detector, estimation for the dark current
 distancefromreferencetosample = 219; % mm, distance from reference sample holder to normal sample holder
-detshift = 50;
+% detshift = 50;
+% detshift = 48.5; % since 31.3.2011, 1M
+detshift = 47; % since 6.5.2011, 300k
 
-if(isstruct(thicknesses)) % This property does not work yet. 
+if(isstruct(thicknesses))  
   % Contains or should contain structure variable 'thicknesses':
   sizethick = size(thicknesses);
   flagthick = 0; % Flag for thickness found from the struct thicknesses
@@ -62,9 +65,9 @@ if(numel(energycalib)~=numel(energymeas) | numel(energycalib)<2)
 end;    
 
 if(nargin < 14) % Integrate each matrix separately % AW updated parameter list and returned values
-  [qs,ints,errs,areas,As,Aerrs,header,ori,injectionEB] = B1integratepilatus(dirname,fsn1,dclevel,sens,errorsens,mask,pri,energymeas,energycalib,distminus,detshift,fluorcorr);
+  [qs,ints,errs,areas,As,Aerrs,header,ori,injectionEB] = B1integratepilatus(fsn1,dclevel,sens,errorsens,mask,pri,energymeas,energycalib,distminus,detshift,fluorcorr);
 else
-  [qs,ints,errs,areas,As,Aerrs,header,ori,injectionEB] = B1integratepilatus(dirname,fsn1,dclevel,sens,errorsens,mask,pri,energymeas,energycalib,distminus,detshift,fluorcorr,orig);
+  [qs,ints,errs,areas,As,Aerrs,header,ori,injectionEB] = B1integratepilatus(fsn1,dclevel,sens,errorsens,mask,pri,energymeas,energycalib,distminus,detshift,fluorcorr,orig);
 end;
 
 sizeints = size(ints);
@@ -109,7 +112,7 @@ if(counterref == 1) % Found at least one reference measurement
 posref155 = 129;
 posref500 = 139;
 posref1000 = 159;
-%posrefGGGC500 = 159.26;
+posrefGGGC500 = 159.31;
 %posref155 = 130.4; % old positions
 %posref500 = 140.4;
 %posref1000 = 160.4;
@@ -123,7 +126,7 @@ posref1000 = 159;
  elseif(round(referencemeas)==round(posref1000))
      load calibrationfiles\GC1000.dat;
      GCdata(:,1:3) = GC1000; thickGC = 992*10^-4; % in cm
-% elseif(round(referencemeas)==round(posrefGGGC500))
+%elseif(round(referencemeas)==round(posrefGGGC500))
 %     load calibrationfiles\GC500Guenter_invcm_plateau.dat;
 %     GCdata(:,1:3) = GC500Guenter_invcm_plateau; thickGC = 500*10^-4; % in cm
  end;
@@ -180,7 +183,7 @@ disp(sprintf('FSN %d: Using GLASSY CARBON REFERENCE with nominal thickness %.f m
 % [qbinGC,intsbinGC,errsbinGC] = tobins(qs(:,referencenumber),ints(:,referencenumber)/thickGC.*spatialcorr.*transmcorr,errs(:,referencenumber)/thickGC.*spatialcorr.*transmcorr,points,fq,lq);
 
 disp('Re-integrating GC data to the same bins at which the reference is defined');
-[qsbinGC,intsbinGC,errsbinGC,areasbinGC]=radint(As(:,:,referencenumber),...
+[qsbinGC,intsbinGC,errsbinGC,areasbinGC]=radint3(As(:,:,referencenumber),...
                                           Aerrs(:,:,referencenumber),...
                                           header(referencenumber).EnergyCalibrated,...
                                           header(referencenumber).Dist,...
@@ -323,7 +326,7 @@ for(k = 1:sizeints(2))
        if((current(k)>currentGC) && (k > referencenumber))
             injectionGC = 'y';
        elseif((current(k)<currentGC) && (k < referencenumber))
-            injectionGC == 'y'
+            injectionGC = 'y';
        else
             injectionGC = 'n'; % (although not necessarily!)
        end;

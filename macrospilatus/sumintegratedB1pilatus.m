@@ -13,7 +13,11 @@ for(p = 1:sd(2)) % Search for all different energies
      energies = [energies param(p).EnergyCalibrated];
    end;
    if(isempty(find(temperatures==round(param(p).Temperature))) & strcmp(param(p).Title,samplename))
-     temperatures = 24; %[temperatures round(param(p).Temperature)];
+       if(isempty(temperatures))
+           temperatures = [temperatures round(param(p).Temperature)];
+       elseif(temperatures(1)/round(param(p).Temperature)<0.8 | temperatures(1)/round(param(p).Temperature)>1.2)
+               temperatures = [temperatures round(param(p).Temperature)]
+       end;
    end;
 end;
 
@@ -24,7 +28,7 @@ for(h = 1:length(energies))
       for(m = 1:length(dist))
           counter = 1;
           for(k = 1:sd(2)) % first sum
-             if(strcmp(param(k).Title,samplename) & dist(m)/param(k).Dist > 0.92 & dist(m)/param(k).Dist < 1.08 & round(param(k).EnergyCalibrated) == round(energies(h))) % & temperatures(l)==round(param(k).Temperature))
+             if(strcmp(param(k).Title,samplename) && dist(m)/param(k).Dist > 0.92 && dist(m)/param(k).Dist < 1.08 && round(param(k).EnergyCalibrated) == round(energies(h)) && (temperatures(l)/round(param(k).Temperature)>0.8 && temperatures(l)/round(param(k).Temperature)<1.2))
                param(k).FSN
                if(counter == 1) % Create the first structure.
                 sumq = data(k).q;
@@ -48,7 +52,7 @@ for(h = 1:length(energies))
       if(counter > 1)
           for(mm = 1:(counter-1))
             ints = sumints/(counter-1);
-             errs = sumerrs/(counter-1);
+            errs = sumerrs/(counter-1);
           end;
          summed = struct('q',sumq,'Intensity',ints,'Error',errs,'FSN',sumfsns,'Title',samplename,'EnergyCalibrated',calibratedenergy,'Dist',dist(m),'Temperature',temperatures(l));
          disp(sprintf('Summed %d measurements:',counter-1));

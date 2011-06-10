@@ -1,6 +1,6 @@
-function B1normintallpilatus(dirname,fsn1,thicksfile,sens,errorsens,mask,energymeas,energycalib,distminus,pri,mythendistance,mythenpixelshift,fluorcorr)
+function B1normintallpilatus(fsn1,thicksfile,sens,errorsens,mask,energymeas,energycalib,distminus,pri,mythendistance,mythenpixelshift,fluorcorr,orig)
 
-% function B1normintallpilatus(dirname,fsn1,thicksfile,sens,errorsens,mask,energymeas,energycalib,distminus,pri,mythendistance,mythenpixelshift,fluorcorr)
+% function B1normintallpilatus(fsn1,thicksfile,sens,errorsens,mask,energymeas,energycalib,distminus,pri,mythendistance,mythenpixelshift,fluorcorr,orig)
 %
 % Finds automatically empty beam and reference measurements and the samples
 % related to those measurements and integrates, subtract dark current,
@@ -86,7 +86,12 @@ end;
 sz_emptys=size(emptys);
 for(m =1:(sz_emptys(1)-1))
   if(emptys(m+1,1) > fsn1found(emptys(m+1,2)-1)) % Process only if next file from empty is not empty
-      B1normintpilatus1(dirname,fsn1found(emptys(m,2):(emptys(m+1,2)-1)),thicksfile,sens,errorsens,mask,energymeas,energycalib,distminus,pri,mythendistance,mythenpixelshift,fluorcorr);
+      if(nargin>13)
+          B1normintpilatus1(fsn1found(emptys(m,2):(emptys(m+1,2)-1)),thicksfile,sens,errorsens,mask,energymeas,energycalib,distminus,pri,mythendistance,mythenpixelshift,fluorcorr,orig);
+          disp('hep1')
+      else
+          B1normintpilatus1(fsn1found(emptys(m,2):(emptys(m+1,2)-1)),thicksfile,sens,errorsens,mask,energymeas,energycalib,distminus,pri,mythendistance,mythenpixelshift,fluorcorr);
+      end;
       % Read in calibrated energy
       paramm = readlogfilepilatus(sprintf('intnorm%d.log',fsn1found(emptys(m,2)+1)));
       % Correct for Mythen data
@@ -95,7 +100,12 @@ for(m =1:(sz_emptys(1)-1))
   end;
 end;
 % And the last one separately
-B1normintpilatus1(dirname,fsn1found(emptys(end,2):end),thicksfile,sens,errorsens,mask,energymeas,energycalib,distminus,pri,mythendistance,mythenpixelshift,fluorcorr);
+if(nargin>13)
+    B1normintpilatus1(fsn1found(emptys(end,2):end),thicksfile,sens,errorsens,mask,energymeas,energycalib,distminus,pri,mythendistance,mythenpixelshift,fluorcorr,orig);
+          disp('hep2')
+else
+    B1normintpilatus1(fsn1found(emptys(end,2):end),thicksfile,sens,errorsens,mask,energymeas,energycalib,distminus,pri,mythendistance,mythenpixelshift,fluorcorr);
+end;
 % Read in calibrated energy
 paramm = readlogfilepilatus(sprintf('intnorm%d.log',fsn1found(emptys(end,2)+1)));
 % Correct for Mythen data
