@@ -26,6 +26,7 @@ function [Asub,errAsub,header,injectionEB,orig] = subtractbgpilatus(fsn1,dclevel
 % Edited: 18.2.2009 Modified for PILATUS UV
 % Edited 18.5.2009 UV, field Anode is now set to sum of image after bg correction and masking
 % Edited 18.5.2009 UV, fixed origin
+% Edited 28.6.2011 AW, fixed handling of default origin parameter
 
 % Read in samples
 [A1,header1] = read2dB1datapilatus('org_',fsn1,'.cbf');
@@ -62,7 +63,7 @@ end;
 % Subtracting dark current and normalising
 counter = 1;
 for(k = 1:sizeA1(3))
-    if(nargin < 9)
+    if(nargin < 8) % 28.06.2011. AW. this was <9, but the function does not have that many arguments. 
         orig(:,k) = getorizoomed(A1(:,:,k),pri); % Determine the center of the beam
     else
         orig(:,k) = origs;

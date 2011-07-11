@@ -1,37 +1,76 @@
+%% Initialization of scripts
 
-%%%% PILATUS data
-addpath D:\Projekte\2010\project\processing
-addpath D:\Projekte\2010\project\data1
-addpath D:\git\Beamline-B1-macros\macrospilatus
-addpath D:\git\Beamline-B1-macros\macrospilatus\macrosmythen
-addpath D:\git\Beamline-B1-macros\macrospilatus\calibrationfiles
-addpath D:\git\Beamline-B1-macros\macrospilatus\dataqualitytools
-addpath D:\git\pilatusnotopenaccess
-cd D:\git\Beamline-B1-macros\macrospilatus
-mex -v -DRADINT -DNSUBDIV=1 radint2.c -output radint
-cd D:\Projekte\2010\project
+% %On-site configuration
+projectdir='D:\\Projekte\\2011\\0624Bota';
+macroroot='D:\\git\\Beamline-B1-macros';
+macros_other={'D:\\git\\pilatusnotopenaccess',...
+    'D:\\matlabmacros\\2008\\notopenaccess\\analysispilatus',...
+    'D:\\othermacros\\cSAXS_matlab_base_package\\cSAXS_matlab_base_package'};
+
+% %Off-site configuration 
+%projectdir='/home/andris/kutatas/desy/2011/0624Bota';
+%macroroot=[projectdir,filesep,'macros',filesep,'Beamline-B1-macros'];
+%macros_other={[projectdir,filesep,'macros',filesep,'pilatusnotopenaccess'],...
+%    [projectdir,filesep,'notopenaccess',filesep,'analysispilatus'],...
+%    [projectdir,filesep,'cSAXS_matlab_base_package']};
+
+% No site-dependent information below these lines!!!
+addpath([projectdir,filesep,'data1']);
+addpath([projectdir,filesep,'eval1']);
+addpath([macroroot,filesep,'macrospilatus']);
+addpath([macroroot,filesep,'macrospilatus',filesep,'macrosmythen']);
+addpath([macroroot,filesep,'macrospilatus',filesep,'calibrationfiles']);
+addpath([macroroot,filesep,'macrospilatus',filesep,'dataqualitytools']);
+for i = 1:length(macros_other)
+    addpath(macros_other{i})
+end
+addpath([projectdir,filesep,'processing']);
+
+%cd D:\git\Beamline-B1-macros\macrospilatus
+%mex -v -DRADINT radint3.c -output radint3
+cd(projectdir);
+
+% 300k
+% sens = ones(619,487);
+% 1M
+sens = ones(1043,981);
+errorsens = zeros(size(sens));
+
+% Calibration of the WAXS detector
+mythendistance = 134; 
+mythenpixelshift = 318.1858;
+
+mask = maskgaps('1M');
+fluorcorr = zeros(size(mask));
+
+%A = GetPilatus('0624Bota','org_',3,1000);
+%mask4 = makemask2(mask4,log(A+1));
+%save processing/mask4.mat mask4
+
+%A = read2dB1datapilatus('Z:\\0624Bota\\','org_',[9:22],'.cbf');
+%DC = fluorcorr;
+%mask2 = makemaskPilatus(A,DC,'1M');
+
+load processing/mask4
 
 % Energy scale calibration
 energycalib = [13880.70 17995.88 ]; % Pt_L3, Pt_L1, Pt_L2, Zr_K
 energymeas = [13862 17981.5]; % The measured positions of 1st inflection points
 
+% Zoomed area axes for determination of beam center through beamstop
 pri = [453   473    46    63];
+
+% Correction to the sample-to-detector distance in mm
+distminus=0;
+detshift = 46;
+
 sens = ones(619,487);
 errorsens = zeros(size(sens));
-
-% A = read2dB1datapilatus('org_',207,'.tif');
-% mask = makemask(mask,A);
-
-% save D:\Projekte\2010\project\processing\mask.mat mask
-load D:\Projekte\2010\project\processing\mask.mat
 
 %%%% loading test images
 A = GetPilatus(mask,'test_',1,1000);
 % Show all data files
 getsamplenamespilatus('org_',2:7,'.header');
-
-load D:\Projekte\2010\project\processing\mask.mat
-load D:\Projekte\2010\project\processing\maskshort.mat
 
 %%%%%%%%%%%%%%%%%%%
 %%%%----------------
@@ -63,9 +102,9 @@ hold off
 
 %%% Reintegrate (rebin) the data
 % 4 tubes
-reintegrateB1pilatus(2:7,masklong,3625,[0.0075:0.002:0.208]);   % 1st data set
+reintegrateB1pilatus(2:7,masklong,3625-shiftd-distminus,[0.0075:0.002:0.208]);   % 1st data set
 % 0 tubes
-reintegrateB1pilatus(8:13,mask0,925,[0.025:0.008:0.815]);       % 1st data set
+reintegrateB1pilatus(8:13,mask0,925-shiftd-distminus,[0.025:0.008:0.815]);       % 1st data set
 
 
 [data,param] = readbinnedpilatus([1:800]);
@@ -97,7 +136,7 @@ legend(legend1)
 
 
 %%%%% READ and CORRECT XANES data to the correct energy scale
-muds = readxanes('abt_',[??:??],'.fio',energymeas,energycalib);
+muds = readxanes('abt_',[??:??],'.fio',energymeas,energycalib,'normal');
 
 handl = plot(muds(1).Energy,(muds(1).mud-min(muds(1).mud))/max(muds(1).mud-min(muds(1).mud)));
 legend(muds.Title,4)
@@ -128,4 +167,4 @@ energyreal = energycalibration(energymeas,energycalib,energy1);
 data = readLaB6calib(dataLaB6,energyreal,1:7); % You can change the last number if you want to include more or less peaks in the fit
 
 mythendistance = stripwidth/data.lamq(1) % 132.2381 = the distance from sample to detector in mm (needed by B1nomintall)
-mythenpixelshit = data.lamq(2) % 291.2323 = shift of Mythen from 0 in pixels (needed by B1nomintall)
+mythenpixelshift = data.lamq(2) % 291.2323 = shift of Mythen from 0 in pixels (needed by B1nomintall)

@@ -1,6 +1,6 @@
-function sumanduniteB1pilatuswaxsshort(data,param,samplename,dist,uniqwaxs,q1waxs,q2waxs,qwaxs1,qwaxs2,flatfield,waxsshift)
+function sumanduniteB1pilatuswaxsshort(data,param,samplename,dist,uniqwaxs,q1waxs,q2waxs,qwaxs1,qwaxs2,flatfield,bins,waxsshift)
 
-% function sumanduniteB1pilatuswaxsshort(data,param,samplename,dist,uniqwaxs,q1waxs,q2waxs,flatfield,waxsshift)
+% function sumanduniteB1pilatuswaxsshort(data,param,samplename,dist,uniqwaxs,q1waxs,q2waxs,flatfield,bins,waxsshift)
 %
 % dist = e.g. [3635 935]
 % 
@@ -62,7 +62,7 @@ for(h = 1:length(energies))
              end;
          end;
          % Unite a few pixels
-        [qbin,intbin,errbin] = tobins(waxstmp2.q',waxstmp2.Intensity',waxstmp2.Error',300,qwaxs1,qwaxs2);
+        [qbin,intbin,errbin] = tobins(waxstmp2.q',waxstmp2.Intensity',waxstmp2.Error',bins,qwaxs1,qwaxs2);
         waxs = struct('q',qbin,'Intensity',intbin,'Error',errbin);
     end;
     if(shortfound == 1) % Short and long distance found so unite them

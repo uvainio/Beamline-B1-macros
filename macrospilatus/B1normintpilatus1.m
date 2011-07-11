@@ -40,6 +40,11 @@ function [qout,intout,errout,header,errmult,energyreal,distance] = B1normintpila
 % Edited: 24.11.2009 UV: Mythen data reduction moved to B1normintallpilatus.m
 % Edited: 21.10.2010 AW: radint3 is used instead of radint, which is now
 % obsolete.
+% Edited: 29.6.2011 AW: Two fixes: 1) default origin can now be passed
+% through. 2) the possibility for 1-pair energy calibration is now included
+% in the function energycalibration.m. However, the user is strongly
+% discouraged (several warning messages and prompts).
+% Edited: 1.7.2011 AW: fixed calibration file names to be UNIX-compatible.
 
 GCareathreshold=10;
 pixelsize = 0.172; % mm
@@ -47,7 +52,8 @@ dclevel = 7/(619*487); % counts per second to one pixel of the detector, estimat
 distancefromreferencetosample = 219; % mm, distance from reference sample holder to normal sample holder
 % detshift = 50;
 % detshift = 48.5; % since 31.3.2011, 1M
-detshift = 47; % since 6.5.2011, 300k
+% detshift = 47; % since 6.5.2011, 300k
+detshift = 46; % 1M, since 15.6.2011
 
 if(isstruct(thicknesses))  
   % Contains or should contain structure variable 'thicknesses':
@@ -59,12 +65,25 @@ else
     disp(sprintf('Using thickness %f cm for all samples except references.',thick))
 end;
 
-if(numel(energycalib)~=numel(energymeas) | numel(energycalib)<2)
-   disp('STOPPING. Variables energycalib and energymeas should contain equal amount of\npoints and at least two points to be able to make the energy calibration.')
-   return
-end;    
-
-if(nargin < 14) % Integrate each matrix separately % AW updated parameter list and returned values
+% 29.6.2011. AW I made energy calibration possible for 1 energy pair
+% (although it is discouraged in a warning message in energycalibration()).
+% Therefore this check is modified to only choke on notequal vector sizes.
+%if(numel(energycalib)~=numel(energymeas) | numel(energycalib)<2)
+%   disp('STOPPING. Variables energycalib and energymeas should contain equal amount of\npoints and at least two points to be able to make the energy calibration.')
+%   return
+%end;    
+if (numel(energycalib)~=numel(energymeas)) || (numel(energycalib)==0)
+    error('Variables energycalib and energymeas should contain equal amounts of \npoints (and at least one).');
+end
+if numel(energycalib)==1
+    warning('You have ONLY ONE energy calibration pair. This is a BAD idea.\nYou should have more for an accurate energy calibration.');
+    tmp=input('If this is really what you want, press "y":');
+    if strcmpi(tmp(1),'y')==0
+        return
+    end
+end
+        
+if(nargin < 13) % Integrate each matrix separately % AW updated parameter list and returned values % 29.6.2011 AW. fixed 14 -> 13
   [qs,ints,errs,areas,As,Aerrs,header,ori,injectionEB] = B1integratepilatus(fsn1,dclevel,sens,errorsens,mask,pri,energymeas,energycalib,distminus,detshift,fluorcorr);
 else
   [qs,ints,errs,areas,As,Aerrs,header,ori,injectionEB] = B1integratepilatus(fsn1,dclevel,sens,errorsens,mask,pri,energymeas,energycalib,distminus,detshift,fluorcorr,orig);
@@ -116,18 +135,20 @@ posrefGGGC500 = 159.31;
 %posref155 = 130.4; % old positions
 %posref500 = 140.4;
 %posref1000 = 160.4;
+%1.7.2011. AW in the following if block, all the pathnames are edited to be
+%UNIX-compatible
  if(round(referencemeas)==round(posref155))
-     load calibrationfiles\GC155.dat;
+     load('calibrationfiles/GC155.dat');
      GCdata(:,1:3) = GC155; thickGC = 143*10^-4; % in cm, According to measurements in autumn 2007
      % Assumption has been made that the density of all samples is the same
  elseif(round(referencemeas)==round(posref500))
-     load calibrationfiles\GC500.dat;
+     load('calibrationfiles/GC500.dat');
      GCdata(:,1:3) = GC500; thickGC = 508*10^-4;% in cm
  elseif(round(referencemeas)==round(posref1000))
-     load calibrationfiles\GC1000.dat;
+     load('calibrationfiles/GC1000.dat');
      GCdata(:,1:3) = GC1000; thickGC = 992*10^-4; % in cm
 %elseif(round(referencemeas)==round(posrefGGGC500))
-%     load calibrationfiles\GC500Guenter_invcm_plateau.dat;
+%     load('calibrationfiles/GC500Guenter_invcm_plateau.dat');
 %     GCdata(:,1:3) = GC500Guenter_invcm_plateau; thickGC = 500*10^-4; % in cm
  end;
 end;

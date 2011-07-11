@@ -86,7 +86,7 @@ end;
 sz_emptys=size(emptys);
 for(m =1:(sz_emptys(1)-1))
   if(emptys(m+1,1) > fsn1found(emptys(m+1,2)-1)) % Process only if next file from empty is not empty
-      if(nargin>13)
+      if(nargin>12) % 29.6.2011. AW. fixed 13->12
           B1normintpilatus1(fsn1found(emptys(m,2):(emptys(m+1,2)-1)),thicksfile,sens,errorsens,mask,energymeas,energycalib,distminus,pri,mythendistance,mythenpixelshift,fluorcorr,orig);
           disp('hep1')
       else
@@ -100,7 +100,7 @@ for(m =1:(sz_emptys(1)-1))
   end;
 end;
 % And the last one separately
-if(nargin>13)
+if(nargin>12) % 29.6.2011. AW. fixed 13->12
     B1normintpilatus1(fsn1found(emptys(end,2):end),thicksfile,sens,errorsens,mask,energymeas,energycalib,distminus,pri,mythendistance,mythenpixelshift,fluorcorr,orig);
           disp('hep2')
 else

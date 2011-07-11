@@ -31,7 +31,7 @@ line1 = fgetl(fid);
 fclose(fid);
 if(strcmp('300k',line1))
     detectortype = 300;
-elseif(strcmp('1M',line1) || strcmp('1m',string(line1)))
+elseif(strcmp('1M',line1) || strcmp('1m',line1))
     detectortype = 1000;
 end;
 

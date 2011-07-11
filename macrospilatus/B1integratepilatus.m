@@ -21,6 +21,9 @@ function [qs,ints,errs,Areas,As,Aerrs,header,orig,injectionEB] = B1integratepila
 % Edited 21.7.2009 AW the last edit was not performed correctly and upon
 % determining the q-scale, some q-bins with 0 effective area were taken into
 % account among the normal q-bins.
+% Edited 29.6.2011 AW Updated mechanism for default transmission and origin
+% parameters.
+
 %AW parameter "orig" is not used anywhere!
 
 
@@ -30,10 +33,14 @@ pixelsize = 0.172; % It is not used for q-range calibration, only for polarizati
 distancetoreference = 219;
 HC=12398.419; %Planck's constant times speed of light, eV*Angstroems, NIST 2006
 
-if(nargin < 13) %AW 7->11 as new input arguments were added.
+%29.6.2011. AW the next whole if clause was updated to work well with
+%optional parameters.
+if(nargin < 12) %AW 7->11 as new input arguments were added.
   [Asub,errAsub,header,injectionEB,orig] = subtractbgpilatus(fsn1,dclevel,sens,errorsens,pri,mask,fluorcorr);
-else % Special case if origin is used
+elseif (nargin<13) % Special case if origin is used
   [Asub,errAsub,header,injectionEB,orig] = subtractbgpilatus(fsn1,dclevel,sens,errorsens,pri,mask,fluorcorr,orig);
+else % Special case if origin and transmission are used
+  [Asub,errAsub,header,injectionEB,orig] = subtractbgpilatus(fsn1,dclevel,sens,errorsens,pri,mask,fluorcorr,orig,transm);
 end;
 %AW we do not need this, as we will use size(A,3) instead of sizeA(3).
 %sizeA = size(Asub);
@@ -162,6 +169,7 @@ for(l = 1:size(Asub,3))
     errs(:,l)=errs1;
     Areas(:,l)=Areas1;
     hold off;
+    
     pause %we put pause here, so while the user checks the 2d data, the integration is carried out.
     subplot(121);
     cla;
@@ -170,8 +178,8 @@ for(l = 1:size(Asub,3))
     axis tight;
     % end of Added by AW
     % commented by AW
-%    temp = imageint(Asub(:,:,l),orig(:,l),1-mask);
-%    ints(1:length(temp),l) = temp;
+    %    temp = imageint(Asub(:,:,l),orig(:,l),1-mask);
+    %    ints(1:length(temp),l) = temp;
     ylabel('Intensity (arb. units)');
     xlabel(sprintf('q (1/%c)',197));
     title(sprintf('FSN %d ',getfield(header(l),'FSN')));
@@ -185,7 +193,7 @@ for(l = 1:size(Asub,3))
     hold off;
     drawnow;
     pause
-% end of AW.
+    % end of AW.
 % commented by AW. This part did the error propagation before. Now it is
 % done by the integration routines.
 %    %pause
