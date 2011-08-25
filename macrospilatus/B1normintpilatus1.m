@@ -45,6 +45,7 @@ function [qout,intout,errout,header,errmult,energyreal,distance] = B1normintpila
 % in the function energycalibration.m. However, the user is strongly
 % discouraged (several warning messages and prompts).
 % Edited: 1.7.2011 AW: fixed calibration file names to be UNIX-compatible.
+% Edited: 6.7.2011 AW: fixed warning message for single-energy calibration.
 
 GCareathreshold=10;
 pixelsize = 0.172; % mm
@@ -77,7 +78,7 @@ if (numel(energycalib)~=numel(energymeas)) || (numel(energycalib)==0)
 end
 if numel(energycalib)==1
     warning('You have ONLY ONE energy calibration pair. This is a BAD idea.\nYou should have more for an accurate energy calibration.');
-    tmp=input('If this is really what you want, press "y":');
+    tmp=input('If this is really what you want, press "y":','s');
     if strcmpi(tmp(1),'y')==0
         return
     end
