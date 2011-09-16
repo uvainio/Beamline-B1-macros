@@ -1,6 +1,6 @@
-function [qout,intout,errout,header,errmult,energyreal,distance] = B1normintpilatus1(fsn1,thicknesses,sens,errorsens,mask,energymeas,energycalib,distminus,pri,mythendistance,mythenpixelshift,fluorcorr,orig)
+function [qout,intout,errout,header,errmult,energyreal,distance] = B1normintpilatus1(fsn1,thicknesses,sens,errorsens,mask,energymeas,energycalib,distminus,pri,detshift,fluorcorr,orig)
 
-% [qout,intout,errout,header] = B1normintpilatus1(fsn1,thicknesses,sens,errorsens,mask,energymeas,energycalib,distminus,pri,mythendistance,mythenpixelshift,fluorcorr)
+% [qout,intout,errout,header] = B1normintpilatus1(fsn1,thicknesses,sens,errorsens,mask,energymeas,energycalib,distminus,pri,detshift,fluorcorr)
 %
 % IN:
 % thicknesses = either one thickness in cm or a structure containing
@@ -9,9 +9,8 @@ function [qout,intout,errout,header,errmult,energyreal,distance] = B1normintpila
 %           detector and the standard position
 % pri = [xmin xmax ymin ymax] for determining the center of the beam
 %       you get these numbers by zooming around the beam, then type axis
-% mythendistance = distance from goniometer center to the WAXS detector (MYTHEN), if WAXS detector was not used, put any number
-%                    2009 spring 133.8320 mm
-% mythenpixelshift = shift in pixels from 0 of the MYTHEN detector (2009 spring 300.3417)
+% detshift = in mm the difference of detector position to the theoretical
+% position (the value is subtracted from the theoretical position)
 %
 % OUT:
 %
@@ -46,15 +45,14 @@ function [qout,intout,errout,header,errmult,energyreal,distance] = B1normintpila
 % discouraged (several warning messages and prompts).
 % Edited: 1.7.2011 AW: fixed calibration file names to be UNIX-compatible.
 % Edited: 6.7.2011 AW: fixed warning message for single-energy calibration.
+% Edited: 15.9.2011 UV: Changed detshift to be an input parameter
+%                   removed mythen parameters from input
+
 
 GCareathreshold=10;
 pixelsize = 0.172; % mm
 dclevel = 7/(619*487); % counts per second to one pixel of the detector, estimation for the dark current
 distancefromreferencetosample = 219; % mm, distance from reference sample holder to normal sample holder
-% detshift = 50;
-% detshift = 48.5; % since 31.3.2011, 1M
-% detshift = 47; % since 6.5.2011, 300k
-detshift = 46; % 1M, since 15.6.2011
 
 if(isstruct(thicknesses))  
   % Contains or should contain structure variable 'thicknesses':
@@ -84,7 +82,7 @@ if numel(energycalib)==1
     end
 end
         
-if(nargin < 13) % Integrate each matrix separately % AW updated parameter list and returned values % 29.6.2011 AW. fixed 14 -> 13
+if(nargin < 12) % Integrate each matrix separately % AW updated parameter list and returned values % 29.6.2011 AW. fixed 14 -> 13
   [qs,ints,errs,areas,As,Aerrs,header,ori,injectionEB] = B1integratepilatus(fsn1,dclevel,sens,errorsens,mask,pri,energymeas,energycalib,distminus,detshift,fluorcorr);
 else
   [qs,ints,errs,areas,As,Aerrs,header,ori,injectionEB] = B1integratepilatus(fsn1,dclevel,sens,errorsens,mask,pri,energymeas,energycalib,distminus,detshift,fluorcorr,orig);
@@ -358,10 +356,7 @@ for(k = 1:sizeints(2))
        
        writeintfile(qout(:,counter),intout(:,counter),errout(:,counter),header(k));
        write2dintfile(Aout(:,:,counter),Aerrout(:,:,counter),header(k));
-%%% 29.5.2009 Added myhen UV, mythendistance 133.8320, mythenpixelshift = 300.3417
-%       [qmythen,tthmythen] = qfrompixelsizeB1(mythendistance-distminus,0.05,header(k).EnergyCalibrated,mythenpixelshift+[0:1279]);
-       %removed ' from tthmythen AW 4.6.2009
-%       mythennormint('waxs_',header(k).FSN,qmythen,tthmythen,'angle');
+%       write2dintfile(Aout(:,:,counter),Aerrout(:,:,counter),header(k),'ASCII');
        counter = counter + 1;
        if(isstruct(thicknesses)) % If thicknesses are given in a structure
          flagthick = 0; % Resetting flag.

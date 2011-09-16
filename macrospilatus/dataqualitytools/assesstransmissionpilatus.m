@@ -1,6 +1,6 @@
-function assesstransmissionpilatus(fsns,titleofsample)
+function transm1 = assesstransmissionpilatus(fsns,titleofsample)
 
-% function assesstransmissionpilatus(fsns,titleofsample)
+% function transmission = assesstransmissionpilatus(fsns,titleofsample)
 %
 % Gives average of transmissions measured at different times for the sample
 % with sample name 'titleofsample' within the wanted file sequence numbers

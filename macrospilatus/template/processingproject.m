@@ -82,12 +82,12 @@ mythendistance = 132.2381; % old value 132.0722;
 mythenpixelshift = 291.2323; % old value 313.5302;
 
 %%%% LONG distance
-B1normintallpilatus([11:17],thicknesses,sens,errorsens,mask,energymeas,energycalib,distminus,pri,mythendistance,mythenpixelshift);
+B1normintallpilatus([11:17],thicknesses,sens,errorsens,mask,energymeas,energycalib,distminus,pri,mythendistance,mythenpixelshift,detshift,fluorcorr);
 
 %%% SHORT distance
-B1normintallpilatus([206:207],thicknesses,sens,errorsens,maskshort,energymeas,energycalib,distminus,pri,mythendistance,mythenpixelshift);
+B1normintallpilatus([206:207],thicknesses,sens,errorsens,maskshort,energymeas,energycalib,distminus,pri,mythendistance,mythenpixelshift,detshift,fluorcorr);
 
-[datap,paramp] = readintnormpilatus(91:400);
+[datap,paramp] = readbinnedpilatus(91:400);
 legend1 = plotints(datap,paramp,'sample1',[17030],'-',1); hold on
 hold off
 legend([legend1]);
@@ -102,9 +102,9 @@ hold off
 
 %%% Reintegrate (rebin) the data
 % 4 tubes
-reintegrateB1pilatus(2:7,masklong,3625-shiftd-distminus,[0.0075:0.002:0.208]);   % 1st data set
+reintegrateB1pilatus(2:7,masklong,3625-detshift-distminus,[0.0075:0.002:0.208]);   % 1st data set
 % 0 tubes
-reintegrateB1pilatus(8:13,mask0,925-shiftd-distminus,[0.025:0.008:0.815]);       % 1st data set
+reintegrateB1pilatus(8:13,mask0,925-detshift-distminus,[0.025:0.008:0.815]);       % 1st data set
 
 
 [data,param] = readbinnedpilatus([1:800]);
