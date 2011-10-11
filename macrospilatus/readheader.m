@@ -158,6 +158,9 @@ for(k = 1:length(temp))
     if(strcmp(temp(k),'-') | strcmp(temp(k),' '))
         temp(k) = '_';
     end;
+    if(strcmp(temp(k),'.'))
+        temp(k) = 'p';
+    end;
 end;
 header = setfield(header,'Title',temp); % line 54
 temp = fscanf(fid,'%s',2);                 % read lines in between

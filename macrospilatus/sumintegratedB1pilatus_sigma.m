@@ -1,6 +1,6 @@
 function datasum = sumintegratedB1pilatus_sigma(data,param,samplename)
 
-% function datasum = sumintegratedB1pilatus(data,param,samplename)
+% function datasum = sumintegratedB1pilatus_sigma(data,param,samplename)
 %
 % Created 7.11.2007
 % Edited: 5.7.2011 UV Changed error calculation and summing to take into account the mean value
@@ -42,8 +42,8 @@ for(h = 1:length(energies))
                 calibratedenergy = param(k).EnergyCalibrated;
                 loglog(data(k).q,data(k).Intensity,'r'); hold on
                elseif(sum(data(k).q - sumq) == 0) % Making sure q-range is the same
-                sumints = sumints + data(k).Intensity./data(k).Error;
-                sumerrsnorm = sumerrsnorm + 1./data(k).Error;
+                sumints = sumints + data(k).Intensity./data(k).Error.^2;
+                sumerrsnorm = sumerrsnorm + 1./data(k).Error.^2;
                 sumerrs = sqrt(sumerrs.^2 + (1./data(k).Error).^2); % How to calculate weighted error?
                 sumfsns = [sumfsns param(k).FSN];
                 counter = counter + 1;

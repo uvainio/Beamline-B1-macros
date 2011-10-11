@@ -94,6 +94,7 @@ oy=floor(or(1)-mv):ceil(or(1)+mv);
 
 %figure(1);surf(ox,oy,A(oy,ox));view(0,90);
 
+
 B=linint2(oy,ox,A(oy,ox),y,x);
 
 %figure(2);surf(x,y,B);view(0,90);

@@ -14,7 +14,7 @@ function qtheor = checkqrange(energy,tubes,bsR)
 %
 % Created 24.9.2008 UV
 
-shiftd = 48.5;
+shiftd = 46;
 if(tubes == 0)
     distance = 935-shiftd;
 elseif(tubes == 1)
