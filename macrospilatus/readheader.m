@@ -141,6 +141,8 @@ linesread = 44;
 temp = fscanf(fid,'%s',46 - linesread);        % read lines in between
 temp = fscanf(fid,'%g',1);
 header = setfield(header,'Dist',temp); % line 47
+% Emergency solution for beamtime Goerigk 5.12.2011
+%header = setfield(header,'Dist',1835); % line 47
 temp = fscanf(fid,'%s',2);                 % read lines in between
 temp = fscanf(fid,'%g',1);
 header = setfield(header,'XPixel',1/temp); % line 50, header gives resolution 1/mm

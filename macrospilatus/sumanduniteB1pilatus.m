@@ -9,11 +9,12 @@ function sumanduniteB1pilatus(data,param,samplename,uniq,dist,q1,q2,samplename2)
 % Added saving of only summed files, if one distance is missing.
 % 16.5.2009 UV: Added samplename2 in case name in short and long distance
 % measurements was different, put the same name if they were the same
+% Edited 1.3.2012 UV: Changed to weighted sum.
 
-datasum = sumintegratedB1pilatus(data,param,samplename);
+datasum = weightedsumintegratedB1pilatus(data,param,samplename);
 
 if(nargin>7)
-   datasum2 = sumintegratedB1pilatus(data,param,samplename2);
+   datasum2 = weightedsumintegratedB1pilatus(data,param,samplename2);
 else
     datasum2 = [];
     samplename2 = samplename;

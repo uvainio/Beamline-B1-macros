@@ -32,7 +32,8 @@ default_settingsfile='processing/settings.txt';
 % is found for a key and it is not defined in the file, an error will be
 % raised. It would be easier to implement this as a struct, but structs
 % cannot have keys containing numbers. 
-default_values={{'1m',0},{'300k',0},{'nowaxs',0}};
+default_values={{'1m',0},{'300k',0},{'nowaxs',0},{'ecalib_shutup',0},{'plotting_in_integrate',1},...
+    {'plotting_in_getorizoomed',1}};
 
 if nargin<2
     settingsfile=default_settingsfile;

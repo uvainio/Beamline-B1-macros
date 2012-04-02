@@ -77,7 +77,8 @@ for(k = 1:sizeA1(3))
         Abg(:,:,counter) = Abg(:,:,counter-1); Abgerr(:,:,counter) = Abgerr(:,:,counter-1);
      end;
      %if(nargin < 9) % Normal case
-        [A2(:,:,counter),A2err(:,:,counter)] = subdcpilatus(A1(:,:,k)-fluorcorr,header1(k),1,sens,senserr,dclevel);
+        A1(:,:,k)=A1(:,:,k)-fluorcorr;
+        [A2(:,:,counter),A2err(:,:,counter)] = subdcpilatus(A1(:,:,k),header1(k),1,sens,senserr,dclevel);
      %else % in case theoretical transmission is used, deactivated by Ulla Vainio 2.3.2011
      %   [A2(:,:,counter),A2err(:,:,counter)] = subdcpilatus(A1(:,:,k),header1(k),1,sens,senserr,dclevel,transm);
      %end;
@@ -85,6 +86,8 @@ for(k = 1:sizeA1(3))
      counter = counter + 1;
    end;
 end;
+
+clear A1
 
 % Subtracting background from data
 counter2 = 1;
@@ -109,3 +112,8 @@ for(k = 1:(counter-1))
       counter2 = counter2 + 1;
 end;
 orig = orig1;
+
+clear Abg
+clear Abgerr
+clear A2
+clear A2err

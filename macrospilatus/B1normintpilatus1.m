@@ -1,6 +1,6 @@
-function [qout,intout,errout,header,errmult,energyreal,distance] = B1normintpilatus1(fsn1,thicknesses,sens,errorsens,mask,energymeas,energycalib,distminus,pri,detshift,fluorcorr,orig)
+function [qout,intout,errout,header,errmult,energyreal,distance] = B1normintpilatus1(fsn1,thicknesses,sens,errorsens,mask,energymeas,energycalib,distminus,pri,detshift,fluorcorr,refname,orig)
 
-% [qout,intout,errout,header] = B1normintpilatus1(fsn1,thicknesses,sens,errorsens,mask,energymeas,energycalib,distminus,pri,detshift,fluorcorr)
+% [qout,intout,errout,header,errmult,energyreal,distance] = B1normintpilatus1(fsn1,thicknesses,sens,errorsens,mask,energymeas,energycalib,distminus,pri,detshift,fluorcorr,refname)
 %
 % IN:
 % thicknesses = either one thickness in cm or a structure containing
@@ -47,7 +47,12 @@ function [qout,intout,errout,header,errmult,energyreal,distance] = B1normintpila
 % Edited: 6.7.2011 AW: fixed warning message for single-energy calibration.
 % Edited: 15.9.2011 UV: Changed detshift to be an input parameter
 %                   removed mythen parameters from input
-
+% Added: 17.10.2011 UV: Added reference possibility in sample holder
+% Edited: 26.3.2012 AW: Made the code more sparing with memory (release 2D
+%     matrices from the memory when they are not needed anymore).
+% Edited 26.3.2012 UV: Added an error message if thickness is missing.
+% Edited: 31.3.2012 UV Added offset of the reference sample compared to
+% the rest of the samples.
 
 GCareathreshold=10;
 pixelsize = 0.172; % mm
@@ -82,14 +87,15 @@ if numel(energycalib)==1
     end
 end
         
-if(nargin < 12) % Integrate each matrix separately % AW updated parameter list and returned values % 29.6.2011 AW. fixed 14 -> 13
-  [qs,ints,errs,areas,As,Aerrs,header,ori,injectionEB] = B1integratepilatus(fsn1,dclevel,sens,errorsens,mask,pri,energymeas,energycalib,distminus,detshift,fluorcorr);
+if(nargin < 13) % Integrate each matrix separately % AW updated parameter list and returned values % 29.6.2011 AW. fixed 14 -> 13
+  [qs,ints,errs,areas,As,Aerrs,header,ori,injectionEB] = B1integratepilatus(fsn1,dclevel,sens,errorsens,mask,pri,energymeas,energycalib,distminus,detshift,fluorcorr,refname);
 else
-  [qs,ints,errs,areas,As,Aerrs,header,ori,injectionEB] = B1integratepilatus(fsn1,dclevel,sens,errorsens,mask,pri,energymeas,energycalib,distminus,detshift,fluorcorr,orig);
+  [qs,ints,errs,areas,As,Aerrs,header,ori,injectionEB] = B1integratepilatus(fsn1,dclevel,sens,errorsens,mask,pri,energymeas,energycalib,distminus,detshift,fluorcorr,refname,orig);
 end;
 
 sizeints = size(ints);
 counterref = 0;
+referencemeas = 200;
 
 for(k = 1:sizeints(2))
 %AW  Energy calibration was already done by B1integratepilatus.
@@ -104,7 +110,13 @@ for(k = 1:sizeints(2))
 % this point. What we need is finding the reference position, the reference
 % FSN and the reference number.
 % % Correcting for the distance of the reference holder
-   if(strcmp(getfield(header(k),'Title'),'Reference_on_GC_holder_before_sample_sequence'))
+   if(strcmp(getfield(header(k),'Title'),refname))
+      referencemeas = getfield(header(k),'PosSample');
+      referencesfsn = getfield(header(k),'FSN');
+      referencenumber = k;
+      counterref = counterref + 1;
+      currentGC = getfield(header(k),'Current2'); % DORIS current end of measurement
+   elseif(strcmp(getfield(header(k),'Title'),'Reference_on_GC_holder_before_sample_sequence') && strcmp(refname,''))
 %      distance(k) = getfield(header(k),'Dist')-distancefromreferencetosample-distminus;
       referencemeas = getfield(header(k),'PosRef');
       referencesfsn = getfield(header(k),'FSN');
@@ -130,25 +142,33 @@ if(counterref == 1) % Found at least one reference measurement
 posref155 = 129;
 posref500 = 139;
 posref1000 = 159;
-posrefGGGC500 = 159.31;
+posrefGGGC500 = 159.2;
 %posref155 = 130.4; % old positions
 %posref500 = 140.4;
 %posref1000 = 160.4;
 %1.7.2011. AW in the following if block, all the pathnames are edited to be
 %UNIX-compatible
- if(round(referencemeas)==round(posref155))
+ if(round(referencemeas)<100)
+     GCdata = load(sprintf('calibrationfiles/%s.dat',refname));
+     thickGC = load(sprintf('calibrationfiles/%sthickness_cm.dat',refname)); % in cm
+     % Added offset of the reference sample compared to the rest of the
+     % samples. 31.3.2012 UV
+     distminusref = load(sprintf('calibrationfiles/%s_offset_mm.dat',refname));
+     header(referencenumber).Dist = header(referencenumber).Dist-distminusref;
+     disp(sprintf('Using reference %s',refname));
+ elseif(round(referencemeas)==round(posref155))
      load('calibrationfiles/GC155.dat');
      GCdata(:,1:3) = GC155; thickGC = 143*10^-4; % in cm, According to measurements in autumn 2007
      % Assumption has been made that the density of all samples is the same
  elseif(round(referencemeas)==round(posref500))
      load('calibrationfiles/GC500.dat');
      GCdata(:,1:3) = GC500; thickGC = 508*10^-4;% in cm
- elseif(round(referencemeas)==round(posref1000))
+ elseif(round(referencemeas*1000)==round(posref1000*1000))
      load('calibrationfiles/GC1000.dat');
      GCdata(:,1:3) = GC1000; thickGC = 992*10^-4; % in cm
-%elseif(round(referencemeas)==round(posrefGGGC500))
-%     load('calibrationfiles/GC500Guenter_invcm_plateau.dat');
-%     GCdata(:,1:3) = GC500Guenter_invcm_plateau; thickGC = 500*10^-4; % in cm
+elseif(round(referencemeas*1000)==round(posrefGGGC500*1000))
+     load('calibrationfiles/GC500Guenter_invcm_plateau.dat');
+     GCdata(:,1:3) = GC500Guenter_invcm_plateau; thickGC = 500*10^-4; % in cm
  end;
 end;
 %     load GC500.dat;
@@ -263,8 +283,8 @@ errdenominator = 0.5*sqrt( errsbinGC(ll(1))^2 + errsbinGC(ll(end))^2 + ...
                4*sum(errsbinGC(ll(2:end-1)).^2));
 mult = numerator/denominator;
 errmult = mult*sqrt((errnumerator/numerator)^2+(errdenominator/denominator)^2);
-disp(sprintf('Mult and errmult with ORIGINAL method: %f +/- %f',mult_orig, errmult_orig));
-disp(sprintf('Mult and errmult with NEW method: %f +/- %f',mult, errmult));
+disp(sprintf('Mult and errmult with ORIGINAL method: %g +/- %g',mult_orig, errmult_orig));
+disp(sprintf('Mult and errmult with NEW method: %g +/- %g',mult, errmult));
 disp('Using NEW method for mult and errmult.');
 
 writelogfilepilatus(header(referencenumber),...
@@ -290,6 +310,9 @@ AerroutGC = mult*Aerrs(:,:,referencenumber)/thickGC;
 %AW and when error of the normalization factor is concerned, this reads:
 AerroutGC = sqrt((mult*Aerrs(:,:,referencenumber)).^2+(errmult*As(:,:,referencenumber)).^2)/thickGC;
 write2dintfile(AoutGC,AerroutGC,header(referencenumber));
+
+clear AoutGC
+clear AerroutGC
 
 %AW also plotting ints(:,referencenumber) with a thin line
 % HEY! intsbinGC was a 1D vector. How come it has referencenumber as its
@@ -338,10 +361,10 @@ for(k = 1:sizeints(2))
        intout(:,counter) = mult*ints(:,k)/thick;
        errout(:,counter) = sqrt((mult*errs(:,k)).^2+(errmult*ints(:,k)).^2)/thick;
 %AW Also normalize the 2D data.
-       Aout(:,:,counter) = mult*As(:,:,k)/thick;
-       Aerrout(:,:,counter) = mult*Aerrs(:,:,k)/thick;
+       Aout = mult*As(:,:,k)/thick;
+       Aerrout = mult*Aerrs(:,:,k)/thick;
 %AW and when error of the normalization factor is concerned, this reads:
-       Aerrout(:,:,counter) = sqrt((mult*Aerrs(:,:,k)).^2+(errmult*As(:,:,k)).^2)/thick;
+       Aerrout = sqrt((mult*Aerrs(:,:,k)).^2+(errmult*As(:,:,k)).^2)/thick;
 
        if((current(k)>currentGC) && (k > referencenumber))
             injectionGC = 'y';
@@ -355,15 +378,22 @@ for(k = 1:sizeints(2))
                            header(k).Dist,mult,errmult,referencesfsn,thickGC,injectionGC,injectionEB(k),pixelsize);
        
        writeintfile(qout(:,counter),intout(:,counter),errout(:,counter),header(k));
-       write2dintfile(Aout(:,:,counter),Aerrout(:,:,counter),header(k));
-%       write2dintfile(Aout(:,:,counter),Aerrout(:,:,counter),header(k),'ASCII');
+       write2dintfile(Aout,Aerrout,header(k));
+%       write2dintfile(Aout,Aerrout,header(k),'ASCII');
+       clear Aout
+       clear Aerrout
        counter = counter + 1;
        if(isstruct(thicknesses)) % If thicknesses are given in a structure
          flagthick = 0; % Resetting flag.
        end;
     else
          disp(sprintf('Did not find thickness for sample %s. Stopping.',getfield(header(k),'Title')))
+         clear As
+         clear Aerrs
+         error('Aborting evaluation because of a missing thickness value!');
          return;
     end;
   end;
 end;
+clear As
+clear Aerrs

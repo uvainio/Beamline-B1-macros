@@ -1,12 +1,13 @@
-function sumandsaveB1pilatus(data,param,samplename)
+function datasum = sumandsaveB1pilatus(data,param,samplename)
 
 % function sumandsaveB1pilatus(data,param,samplename)
 % 
 % Sums and then saves into summed*.dat the data.
 %
 % Created 18.12.2008 UV
+% Edited 1.3.2012 UV: Changed to weighted sum.
 
-datasum = sumintegratedB1pilatus(data,param,samplename);
+datasum = weightedsumintegratedB1pilatus(data,param,samplename);
 for(k = 1:length(datasum))
   name = sprintf('summed%d.dat',min(datasum(k).FSN));
   fid = fopen(name,'w');

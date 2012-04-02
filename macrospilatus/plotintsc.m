@@ -42,3 +42,4 @@ set(gca,'LineWidth',1);
 set(gca,'FontSize',18);
 xlabel(sprintf('q (1/%c)',197));
 ylabel('Intensity (1/cm)');
+

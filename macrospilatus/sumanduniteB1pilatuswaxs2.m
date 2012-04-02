@@ -10,8 +10,9 @@ function sumanduniteB1pilatuswaxs2(data,param,samplename,samplename2,uniq,dist,q
 % 16.5.2009 UV: Added samplename2 in case name in short and long distance
 % measurements was different, put the same name if they were the same
 % Edited: 27.7.2009 UV, added WAXS
+% Edited 1.3.2012 UV: Changed to weighted sum.
 
-datasum = sumintegratedB1pilatus2(data,param,samplename,samplename2);
+datasum = weightedsumintegratedB1pilatus2(data,param,samplename,samplename2);
 % Load in WAXS data
 [datawaxs,paramwaxs] = readintnormmythen([param(1).FSN:param(end).FSN]);
 if(isstruct(datawaxs))

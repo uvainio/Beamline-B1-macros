@@ -1,6 +1,6 @@
-function [qs,ints,errs,Areas,As,Aerrs,header,orig,injectionEB] = B1integratepilatus(fsn1,dclevel,sens,errorsens,mask,pri,energymeas,energycalib,distminus,detshift,fluorcorr,orig,transm)
+function [qs,ints,errs,Areas,As,Aerrs,header,orig,injectionEB] = B1integratepilatus(fsn1,dclevel,sens,errorsens,mask,pri,energymeas,energycalib,distminus,detshift,fluorcorr,refname,orig,transm)
 
-% [ints,errs,header,injectionEB] = B1integratepilatus(fsn1,dclevel,sens,errorsens,mask,distminus,detshift,pri)
+% [ints,errs,header,injectionEB] = B1integratepilatus(fsn1,dclevel,sens,errorsens,mask,distminus,detshift,fluorcorr,refname)
 % 
 %
 % injectionEB is 'y' if injection was between sample measurement and
@@ -23,6 +23,11 @@ function [qs,ints,errs,Areas,As,Aerrs,header,orig,injectionEB] = B1integratepila
 % account among the normal q-bins.
 % Edited 29.6.2011 AW Updated mechanism for default transmission and origin
 % parameters.
+% Added 17.10.2011 UV: Added the reference measurement in sample holder
+% Edited 26.3.2011 AW Added 'plotting_in_integrate' option in the settings
+% file, which can be used to suppress plotting for any reason. Also
+% included some forced release of auxiliary matrices from the memory.
+% Edited 27.3.2011 AW Added possibility of per-sample distminus.
 
 %AW parameter "orig" is not used anywhere!
 
@@ -35,9 +40,9 @@ HC=12398.419; %Planck's constant times speed of light, eV*Angstroems, NIST 2006
 
 %29.6.2011. AW the next whole if clause was updated to work well with
 %optional parameters.
-if(nargin < 12) %AW 7->11 as new input arguments were added.
+if(nargin < 13) %AW 7->11 as new input arguments were added.
   [Asub,errAsub,header,injectionEB,orig] = subtractbgpilatus(fsn1,dclevel,sens,errorsens,pri,mask,fluorcorr);
-elseif (nargin<13) % Special case if origin is used
+elseif (nargin<14) % Special case if origin is used
   [Asub,errAsub,header,injectionEB,orig] = subtractbgpilatus(fsn1,dclevel,sens,errorsens,pri,mask,fluorcorr,orig);
 else % Special case if origin and transmission are used
   [Asub,errAsub,header,injectionEB,orig] = subtractbgpilatus(fsn1,dclevel,sens,errorsens,pri,mask,fluorcorr,orig,transm);
@@ -59,7 +64,20 @@ for k=1:size(Asub,3)
         header(k).Dist=header(k).Dist-distancetoreference-detshift;
         disp(sprintf('Corrected sample-detector distance for fsn %d (ref. after).',header(k).FSN))
     else
-        header(k).Dist=header(k).Dist-distminus-detshift;
+        %Added possibility to per-sample distminus by AW 27.3.2012
+        if isstruct(distminus)
+            header(k).Title
+            if isfield(distminus,header(k).Title)
+                header(k).Dist=header(k).Dist-distminus.(header(k).Title)-detshift;
+            elseif isfield(distminus,'default')
+                header(k).Dist=header(k).Dist-distminus.default-detshift;
+            else
+                distminus
+                error(['No distminus found for sample ',header(k).Title,' and no default was given in distminus struct.']);
+            end
+        else
+            header(k).Dist=header(k).Dist-distminus-detshift;
+        end
     end;
     energyreal(k)=energycalibration(energymeas,energycalib,header(k).Energy);
     header(k).EnergyCalibrated=energyreal(k); %save it into the header structure as well
@@ -115,29 +133,38 @@ for(l = 1:size(Asub,3))
     
     Aerrs(:,:,l)=Aerrs(:,:,l).*spatialcorr.*absanglecorr.*gasabsorptioncorr;
     
-    % now plot the corrected data.
-    subplot(111); % reset the graph.
-    %removing nonpositive elements from the matrix to be plotted. This
-    %is needed for log-plotting to be done correctly.
-    tmp=As(:,:,l);
-    tmp(tmp<=0)=min(tmp(tmp(:)>0));
-    imagesc(log(tmp));
-    hold on;
-    % plot black where the scattered intensity is nonpositive
-    black=zeros(size(tmp,1),size(tmp,2),3);
-    h=image(black);
-    set(h,'AlphaData',As(:,:,l)<=0);
-    % cover masked area with white
-    white=ones(size(mask,1),size(mask,2),3);
-    h=image(white);
-    set(h,'AlphaData',(1-mask)*0.70);
-    colorbar;
-    title({sprintf('FSN %d (%s) Corrected, log scale',header(l).FSN,header(l).Title),...
-        'Black: non-masked nonpositives; Faded: masked pixels'});
-    plot([1 size(As(:,:,l),2)],[orig(1,l) orig(1,l)],'w-');
-    plot([orig(2,l) orig(2,l)],[1 size(As(:,:,l),1)],'w-');
-    hold off;
-    drawnow;
+    clear spatialcorr
+    clear absanglecorr
+    clear gasabsorptioncorr
+    clear tth
+    
+    if getB1setting('plotting_in_integrate')
+        % now plot the corrected data.
+        subplot(111); % reset the graph.
+        %removing nonpositive elements from the matrix to be plotted. This
+        %is needed for log-plotting to be done correctly.
+        tmp=As(:,:,l);
+        tmp(tmp<=0)=min(tmp(tmp(:)>0));
+        imagesc(log(abs(tmp)));
+        hold on;
+        % plot black where the scattered intensity is nonpositive
+        black=zeros(size(tmp,1),size(tmp,2),3);
+        h=image(black);
+        set(h,'AlphaData',As(:,:,l)<=0);
+        % cover masked area with white
+        white=ones(size(mask,1),size(mask,2),3);
+        h=image(white);
+        set(h,'AlphaData',(1-mask)*0.70);
+        colorbar;
+        title({sprintf('FSN %d (%s) Corrected, log scale',header(l).FSN,header(l).Title),...
+            'Black: non-masked nonpositives; Faded: masked pixels'});
+        plot([1 size(As(:,:,l),2)],[orig(1,l) orig(1,l)],'w-');
+        plot([orig(2,l) orig(2,l)],[1 size(As(:,:,l),1)],'w-');
+        hold off;
+        drawnow;
+        clear black
+        clear white
+    end
     % Now the scattering matrix and the error matrix have been corrected
     % for geometry, angle dependent transmission and gas absorption.
 
@@ -148,6 +175,8 @@ for(l = 1:size(Asub,3))
     qmin=4*pi*sin(0.5*atan(dmin/header(l).Dist))*header(l).EnergyCalibrated/HC;
     qmax=4*pi*sin(0.5*atan(dmax/header(l).Dist))*header(l).EnergyCalibrated/HC;
     qrange=linspace(qmin,qmax,0.5*min(size(As(:,:,l))));
+    
+    clear D
     
     % Added by AW. Radial integration.
     disp('Now integrating...');
@@ -168,31 +197,34 @@ for(l = 1:size(Asub,3))
     ints(:,l)=ints1;
     errs(:,l)=errs1;
     Areas(:,l)=Areas1;
-    hold off;
     
-    pause %we put pause here, so while the user checks the 2d data, the integration is carried out.
-    subplot(121);
-    cla;
-    errorbar(qs(:,l),ints(:,l),errs(:,l));
-    %set(gca,'xscale','log','yscale','log');
-    axis tight;
-    % end of Added by AW
-    % commented by AW
-    %    temp = imageint(Asub(:,:,l),orig(:,l),1-mask);
-    %    ints(1:length(temp),l) = temp;
-    ylabel('Intensity (arb. units)');
-    xlabel(sprintf('q (1/%c)',197));
-    title(sprintf('FSN %d ',getfield(header(l),'FSN')));
-    hold off;
-    % added by AW
-    subplot(122);
-    plot(qs(:,l),Areas(:,l));
-    ylabel('Effective area (pixels)');
-    xlabel(sprintf('q (1/%c)',197));
-    title(sprintf('%s',header(l).Title));
-    hold off;
-    drawnow;
-    pause
+    if getB1setting('plotting_in_integrate')
+        hold off;
+
+        pause %we put pause here, so while the user checks the 2d data, the integration is carried out.
+        subplot(121);
+        cla;
+        errorbar(qs(:,l),ints(:,l),errs(:,l));
+        %set(gca,'xscale','log','yscale','log');
+        axis tight;
+        % end of Added by AW
+        % commented by AW
+        %    temp = imageint(Asub(:,:,l),orig(:,l),1-mask);
+        %    ints(1:length(temp),l) = temp;
+        ylabel('Intensity (arb. units)');
+        xlabel(sprintf('q (1/%c)',197));
+        title(sprintf('FSN %d ',getfield(header(l),'FSN')));
+        hold off;
+        % added by AW
+        subplot(122);
+        plot(qs(:,l),Areas(:,l));
+        ylabel('Effective area (pixels)');
+        xlabel(sprintf('q (1/%c)',197));
+        title(sprintf('%s',header(l).Title));
+        hold off;
+        drawnow;
+        pause
+    end
     % end of AW.
 % commented by AW. This part did the error propagation before. Now it is
 % done by the integration routines.

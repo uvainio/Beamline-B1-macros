@@ -21,14 +21,33 @@ function [or,B,I0,hr,hl,vu,vd]=getorizoomed(A,pri);
 % 
 % Author: Mika Torkkeli
 % Modified so that it is already zoomed to 'pri' Ulla Vainio 31.3.2009
+% Edited 26.3.2012 by Andras Wacha. Added possibility to suppress plotting
+% via the B1 settings file (function getB1setting()). If either the
+% function or the file does not exist, the program assumes the previous way
+% of working gracefully.
 
-figure(1);imagesc(log(A+1)); pause
+try
+   % this can fail in many ways: either getB1setting does not exist or the
+   % settings file does not exist or the default value for
+   % 'plotting_in_getorizoomed' is not set. In any case, the error is
+   % caught by the catch clause next and it is assumed that plotting is
+   % desired.
+   do_plot=getB1setting('plotting_in_getorizoomed');
+catch    
+   do_plot=1;
+end
+
+if do_plot
+   figure(1);imagesc(log(A+1)); pause
+end
 %j1=input('zoom figure around direct beam position ');
 ax=round(pri);
 jv=(ax(3)):(ax(4));
 jh=(ax(1)):(ax(2));
 B=A(jv,jh);
-imagesc(log(B+1)); drawnow; pause
+if do_plot
+   imagesc(log(B+1)); drawnow; pause
+end
 
 I0=sum(sum(B))
 
