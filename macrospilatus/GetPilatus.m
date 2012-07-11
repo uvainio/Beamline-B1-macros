@@ -97,7 +97,7 @@ for i=1:length(fsqn)
         A = cbfread(fullfile(CopyToDir,cbfname));
     end;
     A = A.data';
-    imagesc(log(min(A,maxval)+1));
+    imagesc(log10(max(min(A,maxval),0)+1));
     title(cbfname(1:end-4),'Interpreter','none');
     axis equal
     axis image

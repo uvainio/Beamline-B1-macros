@@ -73,7 +73,7 @@ for(k = 1:sizeA1(3))
    if(FSNempty(k)~=0)
      if(counter ==1)
         [Abg(:,:,counter),Abgerr(:,:,counter)] = subdcpilatus(Abg(:,:,counter),headerbg(counter),1,sens,senserr,dclevel);
-     elseif(getfield(headerbg(counter),'FSN')==getfield(headerbg(counter-1),'FSN'))
+     else %if(getfield(headerbg(counter),'FSN')==getfield(headerbg(counter-1),'FSN'))
         Abg(:,:,counter) = Abg(:,:,counter-1); Abgerr(:,:,counter) = Abgerr(:,:,counter-1);
      end;
      %if(nargin < 9) % Normal case

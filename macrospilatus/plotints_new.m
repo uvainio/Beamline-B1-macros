@@ -12,7 +12,7 @@ function [legend1, patches1] = plotints_new(data,param,samplename,energies,symbo
 
 %Add more colors if you want to use more energies...
 colors={'b','g','r','k','m','c','y'};
-
+subplot(1,1,1);
 %Find the unique energy values, but we don't use matlab's unique(), because
 %of the finiteness of numeric precision
 energies_sorted=sort(energies);

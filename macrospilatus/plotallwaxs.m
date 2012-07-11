@@ -1,5 +1,5 @@
-function plotall(fsns,what,samplenames,energy)
-%function plotall(fsns,what,samplenames,energy)
+function plotallwaxs(fsns,what,samplenames,energy)
+%function plotallwaxs(fsns,what,samplenames,energy)
 %
 % Plot binned/summed/united data
 %
@@ -16,19 +16,20 @@ function plotall(fsns,what,samplenames,energy)
 % This function respects the hold state at start and keeps it unchanged.
 %
 % Created: 25.03.2012 Andras Wacha (awacha at gmail dot com)
+% Edited: 24.5.2012 Ulla Vainio, changed to WAXS plotting
 
 % Plotting
 curvestyle = {'.-b','-og','-xr','-+m','-*k','--sb','--dg','--vr','-^c','--<k','->b','-.ob','-.gs'};
 
 hold_state_at_start=ishold;
-subplot(1,1,1);
+
 if nargin<1
     fsns=1:1000;
 end
 if nargin<2
    what='binned';
 end
-eval(sprintf('[datas,params] = read%spilatus(fsns);',what));
+eval(sprintf('[datas,params] = read%s(fsns);',what));
 if nargin<3
     samplenames=unique({params.Title});
 end
@@ -43,6 +44,9 @@ for i = 1:numel(samplenames);
     end
     try
         legend1(i) = plotintsc(datas,params,samplenames{i},energy,curvestyle{i});
+        set(gca,'XScale','Lin');
+        set(gca,'YScale','Lin');
+        ylabel('Intensity (arb. units)');
         patches(i) = max(get(gca,'children'));
     catch xcep
         %rethrow(xcep)

@@ -30,6 +30,7 @@ flagenergy5 = 0;
 flagenergy6 = 0;
 counterlegend = 1;
 % Plot only for legends
+hh = figure(2);
 for(k = 1:sd(2))
   if(strcmp(param(k).Title,samplename)) % & dist/param(k).Dist > 0.95 & dist/param(k).Dist < 1.05)
     if( abs(param(k).Energy - energies2(1))<0.5 && flagenergy1 == 0) % Changed the energy comparision 26.3.2012 AW
@@ -77,7 +78,8 @@ for(k = 1:sd(2))
     end;
   end;
 end;
-
+close(hh);
+figure(1)
 % Plot all
 for(k = 1:sd(2))
   if(strcmp(param(k).Title,samplename)) % & dist/param(k).Dist > 0.95 & dist/param(k).Dist < 1.05)

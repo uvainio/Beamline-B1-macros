@@ -1,8 +1,8 @@
 function saveB1waxsflatfield(fsns,qwaxs1,qwaxs2,bins,flatfield)
 
-% function saveB1waxsflatfield(data,param,samplename)
+% function saveB1waxsflatfield(fsns,qwaxs1,qwaxs2,bins,flatfield)
 % 
-% Sums and then saves into summedwaxs*.dat the data.
+% Saves into waxsflatfield*.dat the data.
 %
 % Created 18.12.2008 UV
 

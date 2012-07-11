@@ -163,7 +163,7 @@ temp = load('waxs_00006.dat'); % Insert here the name of the file to load (data 
 stripwidth = 0.05 % mm, that is 50 micrometers with of strips in the Mythen detector
 
 dataLaB6 = [temp(:,1) temp(:,2)];
-energyreal = energycalibration(energymeas,energycalib,energy1);
+energyreal = energycalibration(energymeas,energycalib,energy1); pause on
 data = readLaB6calib(dataLaB6,energyreal,1:7); % You can change the last number if you want to include more or less peaks in the fit
 
 mythendistance = stripwidth/data.lamq(1) % 132.2381 = the distance from sample to detector in mm (needed by B1nomintall)

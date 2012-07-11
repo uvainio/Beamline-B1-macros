@@ -86,7 +86,8 @@ end;
 %for(m = 1:(length(emptys)-1))
 sz_emptys=size(emptys);
 for(m =1:(sz_emptys(1)-1))
-  if(emptys(m+1,1) > fsn1found(emptys(m+1,2)-1)) % Process only if next file from empty is not empty
+  %if(emptys(m+1,1) > fsn1found(emptys(m+1,2)-1)) % Process only if next file from empty is not empty
+   if(emptys(m+1,2)>(emptys(m,2)+1)) % Process only if next file from empty is not empty, edited 1.7.2012 UV
       if(nargin>14) % 29.6.2011. AW. fixed 13->12
           B1normintpilatus1(fsn1found(emptys(m,2):(emptys(m+1,2)-1)),thicksfile,sens,errorsens,mask,energymeas,energycalib,distminus,pri,detshift,fluorcorr,refname,orig);
       else

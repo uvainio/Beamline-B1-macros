@@ -52,7 +52,7 @@ function reintegrateB1pilatus(fsn,mask,sddistance,qrange,samplenames)
 
 hc = 2*pi*1973.269601; % from qfrompixelsizeB1
 
-fsn=fsn(:);
+fsn=unique(fsn(:)); % Added unique, 1.7.2012 UV
 
 if nargin<3 % if sddistance was not supplied, set it to [], which activates
             % the "autodetect" mechanism.

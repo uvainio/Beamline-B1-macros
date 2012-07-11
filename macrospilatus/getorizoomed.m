@@ -38,7 +38,7 @@ catch
 end
 
 if do_plot
-   figure(1);imagesc(log(A+1)); pause
+   figure(1);imagesc(log(max(A,0)+1)); pause
 end
 %j1=input('zoom figure around direct beam position ');
 ax=round(pri);

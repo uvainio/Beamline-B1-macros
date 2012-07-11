@@ -1,6 +1,6 @@
-function saxswaxs(fsns,samplename,energy,symbol1)
+function plotsaxswaxs(fsns,samplename,energy,symbol1)
 
-% function saxswaxs(fsns,samplename,energy,symbol1)
+% function plotsaxswaxs(fsns,samplename,energy,symbol1)
 %
 % E.g. saxswaxstemperature([15:200])
 % Plots the SAXS and WAXS data saved into intnorm and waxs_***.cor files
@@ -8,7 +8,8 @@ function saxswaxs(fsns,samplename,energy,symbol1)
 %
 % UV 22.5.2009
 
-[datasaxs,paramsaxs] = readintnormpilatus(fsns);
+%[datasaxs,paramsaxs] = readintnormpilatus(fsns);
+[datasaxs,paramsaxs] = readintbinnedpilatus(fsns);
 
 [datawaxs,paramwaxs] = readintnormmythen(fsns);
 
